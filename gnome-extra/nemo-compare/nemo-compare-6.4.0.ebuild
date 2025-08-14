@@ -15,11 +15,26 @@ SLOT="0"
 KEYWORDS="amd64 ~arm64 ~riscv x86"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
-DEPEND="
+COMMON_DEPEND="
     ${PYTHON_DEPS}
-	>=dev-libs/glib-2.14.0:2
 	>=gnome-extra/nemo-2.0.0
 "
-RDEPEND="
-	dev-util/meld
+DEPEND="
+    ${COMMON_DEPS}
+	>=dev-libs/glib-2.14.0:2
+	dev-python/setuptools
 "
+RDEPEND="
+    ${COMMON_DEPS}
+	dev-python/pygobject
+"
+
+src_install() {
+    # Create target directory
+    insinto /usr/share/nemo-compare
+
+    # Install files
+    doins nemo-compare.py
+    doins utils.py
+    doins nemo-compare-preferences.py
+}
