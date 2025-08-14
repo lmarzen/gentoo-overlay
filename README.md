@@ -1,7 +1,12 @@
-# Luke Marzen's Gentoo Overlay
+# Private Gentoo Overlay
 
-## How To Use
+This is my private Gentoo Overlay and is not indented to be added by others.
 
-```bash
-cp lmarzen-overlay.conf /etc/portage/repos.conf/
+## Installation
+
+```sh
+sudo eselect repository add lmarzen-overlay git https://github.com/lmarzen/gentoo-overlay.git
 ```
+
+Refer to [``eselect-repository`` module page in Gentoo Wiki](https://wiki.gentoo.org/wiki/Eselect/Repository) for more details.
+
