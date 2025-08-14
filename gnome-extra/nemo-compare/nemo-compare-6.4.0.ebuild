@@ -23,7 +23,3 @@ DEPEND="
 RDEPEND="
 	dev-util/meld
 "
-
-python_compile_all() {
-    distutils-r1_python_compile_all
-}
