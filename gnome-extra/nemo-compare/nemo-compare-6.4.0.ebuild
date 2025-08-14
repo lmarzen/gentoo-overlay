@@ -34,7 +34,7 @@ src_install() {
     insinto /usr/share/nemo-compare
 
     # Install files
-    doins nemo-compare.py
-    doins utils.py
-    doins nemo-compare-preferences.py
+    doins ${S}/src/nemo-compare.py
+    doins ${S}/src/utils.py
+    doins ${S}/src/nemo-compare-preferences.py
 }
