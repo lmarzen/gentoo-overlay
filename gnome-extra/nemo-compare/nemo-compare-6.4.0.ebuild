@@ -18,7 +18,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 COMMON_DEPEND="
     ${PYTHON_DEPS}
 	>=gnome-extra/nemo-2.0.0
-	gnome-extra/nemo-python-6.4.0
+	=gnome-extra/nemo-python-${PV}
 "
 DEPEND="
     ${COMMON_DEPS}
