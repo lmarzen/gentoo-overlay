@@ -10,15 +10,14 @@ HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/
 SRC_URI="https://github.com/linuxmint/nemo-extensions/archive/${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/nemo-extensions-${PV}/${PN}"
 
-LICENSE="GPL-2+"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="amd64 ~arm64 ~riscv x86"
-REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+# REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="
-    ${PYTHON_DEPS}
 	>=gnome-extra/nemo-2.0.0
-	=gnome-extra/nemo-python-${PV}
+	>=gnome-extra/nemo-python-3.8.0
 "
 DEPEND="
     ${COMMON_DEPS}
@@ -27,17 +26,16 @@ DEPEND="
 "
 RDEPEND="
     ${COMMON_DEPS}
-    $(python_gen_cond_dep '
-        dev-python/pygobject:3[${PYTHON_USEDEP}]
-	')
+
 "
 
-# src_install() {
-#     # Create target directory
-#     insinto /usr/share/nemo-compare
-#
-#     # Install files
-#     doins ${S}/src/nemo-compare.py
-#     doins ${S}/src/utils.py
-#     doins ${S}/src/nemo-compare-preferences.py
-# }
+src_install() {
+    # Create target directory
+    # insinto /usr/share/nemo-compare
+    #
+    # # Install files
+    # doins ${S}/src/nemo-compare.py
+    # doins ${S}/src/utils.py
+    # doins ${S}/src/nemo-compare-preferences.py
+	emake DESTDIR="${D}" install
+}
