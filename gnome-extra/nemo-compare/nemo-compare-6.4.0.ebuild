@@ -31,11 +31,10 @@ RDEPEND="
 
 src_install() {
     # Create target directory
-    # insinto /usr/share/nemo-compare
+    insinto /usr/share/nemo-compare
     #
     # # Install files
     # doins ${S}/src/nemo-compare.py
     # doins ${S}/src/utils.py
     # doins ${S}/src/nemo-compare-preferences.py
-	emake DESTDIR="${D}" install
 }
