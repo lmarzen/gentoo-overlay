@@ -260,7 +260,7 @@ src_configure() {
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
 
-		_rocm_strip_unsupported_flags
+		CC=hipcc CXX=hipcc strip-unsupported-flags
 		check_amdgpu
 	else
 		mycmakeargs+=(
