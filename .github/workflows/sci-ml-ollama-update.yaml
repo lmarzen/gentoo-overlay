@@ -141,8 +141,7 @@ jobs:
 
       - name: ebuild manifest
         run: |
-          # --force so that manifests are not assumed
-          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest --force
+          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest clean
 
       - name: Commit and push changes
         run: |
