@@ -9,7 +9,7 @@ on:
     paths:
       - '.github/workflows/sci-ml-ollama-update.yaml' 
       - 'sci-ml/ollama/**' 
-  pull-request:
+  pull_request:
     branches: [main, distfiles]
     paths:
       - '.github/workflows/sci-ml-ollama-update.yaml'
