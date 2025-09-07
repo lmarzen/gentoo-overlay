@@ -58,7 +58,7 @@ jobs:
 
       - name: Switch to distfiles branch
         run: |
-          git checkout distfiles || git checkout --orphan distfiles
+          git checkout distfiles || git switch --orphan distfiles
 
       - name: Move tarball into correct location
         run: |
