@@ -43,7 +43,7 @@ jobs:
 
       - name: Clone Ollama
         run: |
-          git clone --depth 1 --branch "${{ steps.get_tag.outputs.tag }}" https://github.com/ollama/ollama.git ollama
+          git clone --depth 1 --branch "${{ steps.get_tag.outputs.tag }}" https://github.com/ollama/ollama.git ${{ env.epn }}-${{ steps.get_tag.outputs.version }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -52,15 +52,14 @@ jobs:
           cache: false
 
       - name: Vendor dependencies
-        working-directory: ollama
+        working-directory: ${{ env.epn }}-${{ steps.get_tag.outputs.version }}
         run: |
           go mod tidy
           go mod vendor
 
       - name: Create vendor tarball
         run: |
-          cd ollama
-          tar -cJf "../${{ env.epn }}-${{ steps.get_tag.outputs.version }}-vendor.tar.xz" vendor
+          tar -caf "${{ env.epn }}-${{ steps.get_tag.outputs.version }}-vendor.tar.xz" ${{ env.epn }}-${{ steps.get_tag.outputs.version }}/vendor
 
       - name: Switch to distfiles branch
         run: |
