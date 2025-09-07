@@ -130,8 +130,8 @@ jobs:
 
   regenerate-manifests:
     runs-on: ubuntu-latest
-    # container:
-    #   image: gentoo/stage3:desktop
+    container:
+      image: gentoo/stage3:desktop
     needs: create-ebuild
     permissions:
       contents: write
@@ -144,24 +144,24 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      # - name: ebuild manifest
-      #   run: |
-      #     rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-      #     ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest clean
-
-      - name: Install dependencies
+      - name: ebuild manifest
         run: |
-          sudo apt update
-          sudo apt install -y python3 python3-pip tar xz-utils git
-          pip install portage
-
-      - name: Generate Manifest
-        run: |
-          export PORTDIR_OVERLAY=$(pwd)
-          # Make sure distfiles directory exists
-          mkdir -p distfiles
-          # Generate manifest
+          rm ${{ env.ecn }}/${{ env.epn }}/Manifest
           ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
+
+      # - name: Install dependencies
+      #   run: |
+      #     sudo apt update
+      #     sudo apt install -y python3 python3-pip tar xz-utils git
+      #     pip install portage
+      #
+      # - name: Generate Manifest
+      #   run: |
+      #     export PORTDIR_OVERLAY=$(pwd)
+      #     # Make sure distfiles directory exists
+      #     mkdir -p distfiles
+      #     # Generate manifest
+      #     ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
       - name: Commit and push changes
         run: |
