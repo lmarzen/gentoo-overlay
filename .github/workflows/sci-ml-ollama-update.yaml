@@ -88,12 +88,12 @@ jobs:
 
       - name: Move tarball into correct location
         run: |
-          mkdir -p ${{ env.ecn }}
-          mv "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.ecn }}/
+          mkdir -p ${{ env.ecn }}/${{ env.epn }}
+          mv "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.ecn }}/${{ env.epn }}/
 
       - name: Commit and push changes
         run: |
-          git add ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
+          git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
           git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push origin distfiles
 
@@ -118,6 +118,6 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add ./${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
+          git add ./${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push

@@ -18,7 +18,7 @@ if [[ ${PV} == *9999* ]]; then
 else
 	SRC_URI="
 		https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz
-		https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/sci-ml/${P}-vendor.tar.xz
+		https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz
 	"
 	KEYWORDS="~amd64"
 fi
