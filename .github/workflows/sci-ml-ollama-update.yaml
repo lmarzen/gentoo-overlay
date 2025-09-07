@@ -124,9 +124,10 @@ jobs:
 
       - name: Generate manifest
         run: |
-          scripts/gen_manifest.sh DIST "https://github.com/ollama/${{ env.epn }}/archive/refs/tags/v${{ needs.release-status.outputs.version }}.tar.gz" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.gh.tar.gz" >> ${{ env.ecn }}/${{ env.epn }}/Manifest
-          scripts/gen_manifest.sh DIST "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" >> ${{ env.ecn }}/${{ env.epn }}/Manifest
-          scripts/gen_manifest.sh EBUILD "${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild" >> ${{ env.ecn }}/${{ env.epn }}/Manifest
+          MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
+          scripts/gen_manifest.sh DIST "https://github.com/ollama/${{ env.epn }}/archive/refs/tags/v${{ needs.release-status.outputs.version }}.tar.gz" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.gh.tar.gz" >> $MAN
+          scripts/gen_manifest.sh DIST "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" >> $MAN
+          scripts/gen_manifest.sh EBUILD "${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild" >> $MAN
 
       - name: Commit and push changes
         run: |
