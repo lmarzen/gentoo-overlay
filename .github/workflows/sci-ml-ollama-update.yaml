@@ -1,15 +1,19 @@
 name: sci-ml/ollama update
 
-permissions:
-  contents: write
-
 on:
   workflow_dispatch: # manual trigger
   schedule:
     - cron: "0 3 * * *"
   push:
+    branches: [main, distfiles]
     paths:
       - '.github/workflows/sci-ml-ollama-update.yaml' 
+      - 'sci-ml/ollama/**' 
+  pull-request:
+    branches: [main, distfiles]
+    paths:
+      - '.github/workflows/sci-ml-ollama-update.yaml'
+      - 'sci-ml/ollama/**'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -36,7 +40,7 @@ jobs:
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout overlay repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check build requirements
         id: requirements
@@ -51,9 +55,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: release-status
     if: ${{ needs.release-status.outputs.new == 'true' }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout overlay repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # needed to push to distfiles branch
 
@@ -101,9 +107,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-vendor-tarball
     if: ${{ needs.release-status.outputs.new == 'true' }}
+    permissions:
+      contents: write
     steps:
       - name: Checkout overlay repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Git
         run: |
@@ -112,10 +120,40 @@ jobs:
 
       - name: Create ebuild
         run: |
-          cp ${{ env.ecn }}/${{ env.ecn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
+          cp ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
       - name: Commit and push changes
         run: |
           git add ./${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push
+
+  regenerate-manifests:
+    runs-on: ubuntu-latest
+    container:
+      image: gentoo/stage3:desktop
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: ebuild manifest
+        run: |
+          # --force so that manifests are not assumed
+          ebuild *.ebuild manifest --force
+
+      - name: Commit and push changes
+        run: |
+          git add ./${{ env.ecn }}/${{ env.epn }}/Manifest
+          git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
+          git push || true
+
+  pkgcheck:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Run pkgcheck
+      uses: pkgcore/pkgcheck-action@v1
