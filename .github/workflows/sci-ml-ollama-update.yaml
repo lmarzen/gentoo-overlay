@@ -67,11 +67,12 @@ jobs:
 
       - name: Commit and push changes
         run: |
+          git status
           # git add ./${{ env.ecn }}/${{ env.epn }}
           # git commit -m "Add ebuilds for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}" &&
           git add ${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.outputs.tag }}-vendor.tar.xz
-          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}" &&
-          git pull --rebase &&
-          git push origin distfiles || true
+          git status
+          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}"
+          # git push origin distfiles || true
         # if: steps.process_releases.conclusion == 'success'
 
