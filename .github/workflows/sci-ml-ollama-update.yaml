@@ -122,67 +122,22 @@ jobs:
         run: |
           cp ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
+      - name: Generate manifest
+        run: |
+          g2 manifest upsert-from-url "https://github.com/ollama/${{ env.epn }}/archive/refs/tags/v${{ needs.release-status.outputs.version }}.tar.gz" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.gh.tar.gz" "${{ env.ecn }}/${{ env.epn }}/Manifest"
+          g2 manifest upsert-from-url "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" "${{ env.ecn }}/${{ env.epn }}/Manifest"
+
       - name: Commit and push changes
         run: |
           git add ./${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
-          git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git push || true
-
-  regenerate-manifests:
-    runs-on: ubuntu-latest
-    needs: create-ebuild
-    if: always()
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Set up git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      # - name: Sync repo and install dependencies
-      #   run: |
-      #     emerge --sync
-      #     emerge dev-vcs/git app-eselect/eselect-repository
-      #
-      # - name: ebuild manifest
-      #   run: |
-      #     rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-      #     ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
-
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y python3 python3-pip tar xz-utils git
-          pip install portage
-          git clone https://github.com/gentoo/portage.git --depth 1
-
-      - name: Regenerate manifest
-        run: |
-          export PORTDIR_OVERLAY=$(pwd)
-          mkdir -p eclass
-          # stub eclasses (cuda/rocm)
-          echo "# empty stub" > eclass/cuda.eclass
-          echo "# empty stub" > eclass/rocm.eclass
-          export PATH=$PATH:$(pwd)/portage/bin
-          # Make sure distfiles directory exists
-          # mkdir -p distfiles
-          # Generate manifest
-          rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-          portage/bin/ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
-
-      - name: Commit and push changes
-        run: |
           git add ./${{ env.ecn }}/${{ env.epn }}/Manifest
-          git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
+          git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push || true
 
   pkgcheck:
     runs-on: ubuntu-latest
     needs: regenerate-manifests
+    if: always()
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
