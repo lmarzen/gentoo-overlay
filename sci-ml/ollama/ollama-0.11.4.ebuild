@@ -287,7 +287,7 @@ src_compile() {
 	else
 		VERSION="${PVR}"
 	fi
-	GOFLAGS+=" -buildmode=pie '-ldflags=-linkmode=external -w -s \"-X=github.com/ollama/ollama/version.Version=$VERSION\" \"-X=github.com/ollama/ollama/server.mode=release\"'"
+	GOFLAGS+=" -ldflags=-w -s \"-X=github.com/ollama/ollama/version.Version=$VERSION\" \"-X=github.com/ollama/ollama/server.mode=release\"'"
 
 	ego build
 
