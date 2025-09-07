@@ -47,7 +47,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: ollama/go.mod
-        cache: false
+          cache: false
 
       - name: Vendor dependencies
         working-directory: ollama
