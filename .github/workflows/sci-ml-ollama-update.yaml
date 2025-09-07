@@ -130,8 +130,6 @@ jobs:
 
   regenerate-manifests:
     runs-on: ubuntu-latest
-    container:
-      image: gentoo/portage
     needs: create-ebuild
     if: always()
     permissions:
@@ -155,20 +153,21 @@ jobs:
       #     rm ${{ env.ecn }}/${{ env.epn }}/Manifest
       #     ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
-      # - name: Install dependencies
-      #   run: |
-      #     sudo apt update
-      #     sudo apt install -y python3 python3-pip tar xz-utils git
-      #     pip install portage
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y python3 python3-pip tar xz-utils git
+          pip install portage
+          git clone https://github.com/gentoo/portage.git --depth 1
 
-      - name: Generate Manifest
+      - name: Regenerate manifest
         run: |
           # export PORTDIR_OVERLAY=$(pwd)
           # Make sure distfiles directory exists
           # mkdir -p distfiles
           # Generate manifest
           rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
+          portage/bin/ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
       - name: Commit and push changes
         run: |
