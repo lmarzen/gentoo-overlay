@@ -112,9 +112,7 @@ jobs:
 
       - name: Create ebuild
         run: |
-          pwd
-          ls
-          cp ${{ env.ecn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
+          cp ${{ env.ecn }}/${{ env.ecn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
       - name: Commit and push changes
         run: |
