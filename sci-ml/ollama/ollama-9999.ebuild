@@ -259,6 +259,11 @@ src_configure() {
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
 
+		# Without this, if any of the user's CXXFLAGS flags are not hipcc
+		# (clang++) supported an error will occur in CMakeTestHIPCompiler.cmake,
+		# causing rocm support not to be built.
+		CC=clang CXX=clang++ strip-unsupported-flags
+
 		check_amdgpu
 	else
 		mycmakeargs+=(
