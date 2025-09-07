@@ -2,9 +2,13 @@ name: pkgcheck
 
 on:
   push:
-    branches: [main]
+    branches: [main, distfiles]
   pull_request:
-    branches: [main]
+    branches: [main, distfiles]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
