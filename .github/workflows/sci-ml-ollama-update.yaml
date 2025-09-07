@@ -20,7 +20,7 @@ env:
   epn: ollama
 
 jobs:
-  release-status:
+  release-status.outputs.
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.get_tag.outputs.tag }}
@@ -46,17 +46,11 @@ jobs:
           else
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
-          if [ -f "${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.version }}.ebuild" ]; then
-            echo "new=false"
-          else
-            echo "new=true"
-          fi
-
 
   build-vendor-tarball:
     runs-on: ubuntu-latest
     needs: release-status
-    if: ${{ needs.release-status.new == 'true' }}
+    if: ${{ needs.release-status.outputs.new == 'true' }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v4
@@ -70,23 +64,23 @@ jobs:
 
       - name: Clone Ollama
         run: |
-          git clone --depth 1 --branch "${{ needs.release-status.tag }}" https://github.com/ollama/ollama.git ${{ env.epn }}-${{ needs.release-status.version }}
+          git clone --depth 1 --branch "${{ needs.release-status.outputs.tag }}" https://github.com/ollama/ollama.git ${{ env.epn }}-${{ needs.release-status.outputs.version }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: ${{ env.epn }}-${{ needs.release-status.version }}/go.mod
+          go-version-file: ${{ env.epn }}-${{ needs.release-status.outputs.version }}/go.mod
           cache: false
 
       - name: Vendor dependencies
-        working-directory: ${{ env.epn }}-${{ needs.release-status.version }}
+        working-directory: ${{ env.epn }}-${{ needs.release-status.outputs.version }}
         run: |
           go mod tidy
           go mod vendor
 
       - name: Create vendor tarball
         run: |
-          tar -caf "${{ env.epn }}-${{ needs.release-status.version }}-vendor.tar.xz" ${{ env.epn }}-${{ needs.release-status.version }}/vendor
+          tar -caf "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.epn }}-${{ needs.release-status.outputs.version }}/vendor
 
       - name: Switch to distfiles branch
         run: |
@@ -95,18 +89,18 @@ jobs:
       - name: Move tarball into correct location
         run: |
           mkdir -p ${{ env.ecn }}
-          mv "${{ env.epn }}-${{ needs.release-status.version }}-vendor.tar.xz" ${{ env.ecn }}/
+          mv "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.ecn }}/
 
       - name: Commit and push changes
         run: |
-          git add ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.version }}-vendor.tar.xz
-          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.tag }}" &&
+          git add ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
+          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push origin distfiles
 
   create-ebuild:
     runs-on: ubuntu-latest
     needs: build-vendor-tarball
-    if: ${{ needs.release-status.new == 'true' }}
+    if: ${{ needs.release-status.outputs.new == 'true' }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v4
@@ -120,10 +114,10 @@ jobs:
         run: |
           pwd
           ls
-          cp ${{ env.ecn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.version }}.ebuild
+          cp ${{ env.ecn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
       - name: Commit and push changes
         run: |
-          git add ./${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.version }}.ebuild
-          git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.tag }}" &&
+          git add ./${{ env.ecn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
+          git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push
