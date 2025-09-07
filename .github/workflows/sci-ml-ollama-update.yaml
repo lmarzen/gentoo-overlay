@@ -132,6 +132,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: gentoo/stage3:desktop
+    needs: create-ebuild
     permissions:
       contents: write
     steps:
@@ -141,7 +142,7 @@ jobs:
       - name: ebuild manifest
         run: |
           # --force so that manifests are not assumed
-          ebuild *.ebuild manifest --force
+          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest --force
 
       - name: Commit and push changes
         run: |
@@ -151,6 +152,7 @@ jobs:
 
   pkgcheck:
     runs-on: ubuntu-latest
+    needs: regenerate-manifests
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
