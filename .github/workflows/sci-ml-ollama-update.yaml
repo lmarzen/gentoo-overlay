@@ -126,7 +126,7 @@ jobs:
         run: |
           git add ./${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git push
+          git push || true
 
   regenerate-manifests:
     runs-on: ubuntu-latest
@@ -141,6 +141,7 @@ jobs:
 
       - name: ebuild manifest
         run: |
+          rm ${{ env.ecn }}/${{ env.epn }}/Manifest
           ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest clean
 
       - name: Commit and push changes
