@@ -255,11 +255,11 @@ src_configure() {
 			-DCMAKE_HIP_PLATFORM="amd"
 			# ollama doesn't honor the default cmake options
 			-DAMDGPU_TARGETS="$(get_amdgpu_flags)"
-			--trace-expand -DCMAKE_FIND_DEBUG_MODE=ON
 		)
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
 
+		_rocm_strip_unsupported_flags
 		check_amdgpu
 	else
 		mycmakeargs+=(
@@ -267,7 +267,6 @@ src_configure() {
 		)
 	fi
 
-	strip-unsupported-flags
 	cmake_src_configure
 }
 
