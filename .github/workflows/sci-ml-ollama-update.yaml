@@ -122,6 +122,16 @@ jobs:
         run: |
           cp ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget jq coreutils tar
+          url=$(curl -s  https://api.github.com/repos/arran4/g2/releases/latest | jq -r '.assets[].browser_download_url | select(endswith("_linux_amd64.deb"))')
+          echo "$url"
+          wget "${url}" -O /tmp/g2.deb
+          sudo dpkg -i /tmp/g2.deb
+          rm /tmp/g2.deb
+
       - name: Generate manifest
         run: |
           g2 manifest upsert-from-url "https://github.com/ollama/${{ env.epn }}/archive/refs/tags/v${{ needs.release-status.outputs.version }}.tar.gz" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.gh.tar.gz" "${{ env.ecn }}/${{ env.epn }}/Manifest"
