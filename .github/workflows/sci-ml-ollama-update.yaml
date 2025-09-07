@@ -136,7 +136,7 @@ jobs:
 
   pkgcheck:
     runs-on: ubuntu-latest
-    needs: regenerate-manifests
+    needs: create-ebuild
     if: always()
     steps:
     - name: Checkout code
