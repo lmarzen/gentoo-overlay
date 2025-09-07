@@ -263,9 +263,8 @@ src_configure() {
 		local -x HIP_PATH="${ESYSROOT}/usr"
 
 		local -x HIPCXX HIPFLAGS
-		HIPCXX=hipcc
 		HIPFLAGS="${CXXFLAGS}"
-		strip-unsupported-flags
+		HIPCXX=clang++ strip-unsupported-flags
 		check_amdgpu
 	else
 		mycmakeargs+=(
