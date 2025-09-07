@@ -41,7 +41,7 @@ jobs:
       - name: Check build requirements
         id: requirements
         run: |
-          if [ -f ${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.version }}.ebuild" ]; then
+          if [ -f "${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.version }}.ebuild" ]; then
             echo "new=true" >> "$GITHUB_OUTPUT"
           else
             echo "new=false" >> "$GITHUB_OUTPUT"
