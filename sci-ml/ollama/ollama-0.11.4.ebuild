@@ -206,6 +206,8 @@ src_prepare() {
 }
 
 src_configure() {
+	filter-lto
+
 	local mycmakeargs=(
 		-DGGML_CCACHE="no"
 
@@ -260,7 +262,10 @@ src_configure() {
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
 
-		CC=hipcc CXX=hipcc strip-unsupported-flags
+		local -x HIPCXX HIPFLAGS
+		HIPCXX=hipcc
+		HIPFLAGS="${CXXFLAGS}"
+		strip-unsupported-flags
 		check_amdgpu
 	else
 		mycmakeargs+=(
