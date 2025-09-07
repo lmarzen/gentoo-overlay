@@ -267,6 +267,7 @@ src_configure() {
 		)
 	fi
 
+	strip-unsupported-flags
 	cmake_src_configure
 }
 
