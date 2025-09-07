@@ -172,7 +172,7 @@ jobs:
           # mkdir -p distfiles
           # Generate manifest
           rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
+          portage/bin/ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
       - name: Commit and push changes
         run: |
