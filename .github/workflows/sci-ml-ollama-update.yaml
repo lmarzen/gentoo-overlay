@@ -162,12 +162,17 @@ jobs:
 
       - name: Regenerate manifest
         run: |
-          # export PORTDIR_OVERLAY=$(pwd)
+          export PORTDIR_OVERLAY=$(pwd)
+          mkdir -p eclass
+          # stub eclasses (cuda/rocm)
+          echo "# empty stub" > eclass/cuda.eclass
+          echo "# empty stub" > eclass/rocm.eclass
+          export PATH=$PATH:$(pwd)/portage/bin
           # Make sure distfiles directory exists
           # mkdir -p distfiles
           # Generate manifest
           rm ${{ env.ecn }}/${{ env.epn }}/Manifest
-          portage/bin/ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
+          ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
       - name: Commit and push changes
         run: |
