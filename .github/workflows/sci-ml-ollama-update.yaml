@@ -50,7 +50,7 @@ jobs:
   build-vendor-tarball:
     runs-on: ubuntu-latest
     needs: release-status
-    if: needs.release-status.new == 'true'
+    if: ${{ needs.release-status.new == 'true' }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
   create-ebuild:
     runs-on: ubuntu-latest
     needs: build-vendor-tarball
-    if: needs.release-status.new == 'true'
+    if: ${{ needs.release-status.new == 'true' }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v4
