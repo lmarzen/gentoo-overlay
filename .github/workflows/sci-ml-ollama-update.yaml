@@ -45,7 +45,7 @@ jobs:
       - name: Check build requirements
         id: requirements
         run: |
-          if [ -f "${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.version }}.ebuild" ]; then
+          if [ -f "${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ steps.get_tag.version }}.ebuild" ]; then
             echo "new=false" >> "$GITHUB_OUTPUT"
           else
             echo "new=true" >> "$GITHUB_OUTPUT"
@@ -139,29 +139,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
 
-      - name: Set up Git
+      - name: Sync repo and install dependencies
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          emerge --sync
+          emerge dev-vcs/git app-eselect/eselect-repository
 
       - name: ebuild manifest
         run: |
           rm ${{ env.ecn }}/${{ env.epn }}/Manifest
           ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
 
-      # - name: Install dependencies
-      #   run: |
-      #     sudo apt update
-      #     sudo apt install -y python3 python3-pip tar xz-utils git
-      #     pip install portage
-      #
-      # - name: Generate Manifest
-      #   run: |
-      #     export PORTDIR_OVERLAY=$(pwd)
-      #     # Make sure distfiles directory exists
-      #     mkdir -p distfiles
-      #     # Generate manifest
-      #     ebuild ${{ env.ecn }}/${{ env.epn }}/*.ebuild manifest
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Commit and push changes
         run: |
