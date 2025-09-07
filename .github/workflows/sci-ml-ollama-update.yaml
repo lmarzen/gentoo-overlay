@@ -73,6 +73,6 @@ jobs:
           git add ${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.outputs.tag }}-vendor.tar.xz
           git status
           git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}"
-          # git push origin distfiles || true
+          git push origin distfiles || true
         # if: steps.process_releases.conclusion == 'success'
 
