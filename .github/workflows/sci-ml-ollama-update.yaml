@@ -1,0 +1,77 @@
+name: sci-ml/ollama update
+
+on:
+  workflow_dispatch: # manual trigger
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    paths:
+      - '.github/workflows/sci-ml-ollama-update.yaml' 
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  ecn: sci-ml
+  epn: ollama
+
+jobs:
+  build-vendor-tarball:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout overlay repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to push to distfiles branch
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Get latest Ollama release tag
+        id: get_tag
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/ollama/ollama/releases/latest | jq -r .tag_name | sed 's/^v//')
+          echo "tag=$LATEST" >> $GITHUB_OUTPUT
+
+      - name: Clone Ollama
+        run: |
+          git clone --depth 1 --branch "v${{ steps.get_tag.outputs.tag }}" https://github.com/ollama/ollama.git ollama
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ollama/go.mod
+
+      - name: Vendor dependencies
+        working-directory: ollama
+        run: |
+          go mod tidy
+          go mod vendor
+
+      - name: Create vendor tarball
+        run: |
+          cd ollama
+          tar -cJf "../${{ env.epn }}-${{ steps.get_tag.outputs.tag }}-vendor.tar.xz" vendor
+
+      - name: Switch to distfiles branch
+        run: |
+          git checkout distfiles || git checkout --orphan distfiles
+
+      - name: Move tarball into correct location
+        run: |
+          mkdir -p ${{ env.ecn }}
+          mv ${{ env.epn }}-*-vendor.tar.xz ${{ env.ecn }}/
+
+      - name: Commit and push changes
+        run: |
+          # git add ./${{ env.ecn }}/${{ env.epn }}
+          # git commit -m "Add ebuilds for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}" &&
+          git add ${{ env.ecn }}/${{ env.epn }}-${{ steps.get_tag.outputs.tag }}-vendor.tar.xz
+          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${generated_tag}" &&
+          git pull --rebase &&
+          git push origin distfiles || true
+        if: steps.process_releases.conclusion == 'success'
+
