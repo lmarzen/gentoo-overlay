@@ -7,7 +7,7 @@ EAPI=8
 ROCM_VERSION=6.1
 inherit cuda rocm
 inherit cmake
-inherit flag-o-matic go-module systemd toolchain-funcs
+inherit go-module systemd toolchain-funcs
 
 DESCRIPTION="Get up and running with Llama 3, Mistral, Gemma, and other language models."
 HOMEPAGE="https://ollama.com"
@@ -206,6 +206,8 @@ src_prepare() {
 }
 
 src_configure() {
+	filter-lto
+
 	local mycmakeargs=(
 		-DGGML_CCACHE="no"
 
