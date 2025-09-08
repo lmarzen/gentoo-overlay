@@ -147,24 +147,31 @@ jobs:
       - name: Regenerate manifest
         run: |
           MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
+          CATEGORY={{ env.ecn }}
+          PN=${{ env.epn }}
+          rm $MAN
           for ebuild in $CATEGORY/$PN/*.ebuild; do
-            # Remove prefix up to the first dash
-            version="${filename#*-}"
-            # Remove suffix after the version (optiona
-            version="${version%.ebuild}"
-            PN=${{ env.epn }}
-            PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
-            PF=$PN-$PVR
-            PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
+            if [[ $ebuild == *9999* ]]; then
+              PV=9999
+              PVR=9999
+            else
+              PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
+              PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
+            fi
             P=$PN-$PV
-            CATEGORY={{ env.ecn }}
+            PF=$PN-$PVR
 
-            rm $MAN
+            echo $CATEGORY $PN $PV $PVR $P $PF
+            echo $ebuild
+
             for file in $CATEGORY/$PN/*; do
+              echo "  $file"
               scripts/gen_manifest.sh $MAN AUX $file
             done
-            scripts/gen_manifest.sh $MAN DIST https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz ${P}.gh.tar.gz
-            scripts/gen_manifest.sh $MAN DIST https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz
+            if [[ $PV != 9999 ]]; then
+              scripts/gen_manifest.sh $MAN DIST https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz ${P}.gh.tar.gz
+              scripts/gen_manifest.sh $MAN DIST https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz
+            fi
             scripts/gen_manifest.sh $MAN EBUILD $ebuild
             scripts/gen_manifest.sh $MAN MISC $CATEGORY/$PN/metadata.xml
           done
