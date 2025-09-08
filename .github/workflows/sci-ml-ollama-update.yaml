@@ -164,7 +164,7 @@ jobs:
             echo $CATEGORY $PN $PV $PVR $P $PF
             echo $ebuild
 
-            for file in $CATEGORY/$PN/*; do
+            for file in $CATEGORY/$PN/files/*; do
               echo "  $file"
               scripts/gen_manifest.sh $MAN AUX $file
             done
