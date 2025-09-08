@@ -131,7 +131,6 @@ jobs:
 
   regenerate-manifest:
     runs-on: ubuntu-latest
-    needs: create-ebuild
     needs: [release-status, create-ebuild]
     if: always()
     permissions:
