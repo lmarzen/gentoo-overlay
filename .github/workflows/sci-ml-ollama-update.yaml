@@ -148,7 +148,7 @@ jobs:
           MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
           CATEGORY=${{ env.ecn }}
           PN=${{ env.epn }}
-          rm $MAN
+          rm -f $MAN
           for ebuild in $CATEGORY/$PN/*.ebuild; do
             if [[ $ebuild == *9999* ]]; then
               PV=9999
