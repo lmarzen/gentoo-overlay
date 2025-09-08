@@ -101,7 +101,8 @@ jobs:
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
           git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git push origin distfiles
+          git pull --rebase &&
+          git push origin distfiles || true
 
   create-ebuild:
     runs-on: ubuntu-latest
@@ -126,6 +127,7 @@ jobs:
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
+          git pull --rebase &&
           git push || true
 
   regenerate-manifest:
@@ -138,11 +140,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
 
+      - name: Pull latest changes
+        run: git pull
+
       - name: Set up git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          sleep 5 && git pull
 
       - name: Regenerate manifest
         run: |
@@ -181,7 +185,8 @@ jobs:
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/Manifest
           git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
-          git push --rebase || true
+          git pull --rebase &&
+          git push || true
 
   pkgcheck:
     runs-on: ubuntu-latest
@@ -190,6 +195,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
+      - name: Pull latest changes
+        run: git pull
 
       - name: Run pkgcheck
         uses: pkgcore/pkgcheck-action@v1
