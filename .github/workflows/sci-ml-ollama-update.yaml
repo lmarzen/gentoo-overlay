@@ -125,7 +125,6 @@ jobs:
       - name: Commit and push changes
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
-          git add ${{ env.ecn }}/${{ env.epn }}/Manifest
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push || true
 
@@ -178,7 +177,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add ./${{ env.ecn }}/${{ env.epn }}/Manifest
+          git add ${{ env.ecn }}/${{ env.epn }}/Manifest
           git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
           git push || true
 
