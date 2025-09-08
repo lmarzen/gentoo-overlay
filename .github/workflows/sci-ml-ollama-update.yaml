@@ -147,7 +147,7 @@ jobs:
       - name: Regenerate manifest
         run: |
           MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
-          CATEGORY={{ env.ecn }}
+          CATEGORY=${{ env.ecn }}
           PN=${{ env.epn }}
           rm $MAN
           for ebuild in $CATEGORY/$PN/*.ebuild; do
