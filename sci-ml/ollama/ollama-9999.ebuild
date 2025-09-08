@@ -7,7 +7,7 @@ EAPI=8
 ROCM_VERSION=6.1
 inherit cuda rocm
 inherit cmake
-inherit flag-o-matic go-module systemd toolchain-funcs flag-o-matic
+inherit flag-o-matic go-module systemd toolchain-funcs
 
 DESCRIPTION="Get up and running with Llama 3, Mistral, Gemma, and other language models."
 HOMEPAGE="https://ollama.com"
@@ -250,6 +250,9 @@ src_configure() {
 	fi
 
 	if use rocm; then
+		# 962445
+		rocm_use_hipcc
+
 		mycmakeargs+=(
 			-DCMAKE_HIP_ARCHITECTURES="$(get_amdgpu_flags)"
 			-DCMAKE_HIP_PLATFORM="amd"
@@ -259,11 +262,6 @@ src_configure() {
 		)
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
-
-		# Without this, if any of the user's CXXFLAGS flags are not hipcc
-		# (clang++) supported an error will occur in CMakeTestHIPCompiler.cmake,
-		# causing rocm support not to be built.
-		CC=clang CXX=clang++ strip-unsupported-flags
 
 		check_amdgpu
 	else
