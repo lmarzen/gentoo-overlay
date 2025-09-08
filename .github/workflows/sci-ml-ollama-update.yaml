@@ -122,13 +122,6 @@ jobs:
         run: |
           cp ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
 
-      - name: Generate manifest
-        run: |
-          MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
-          scripts/gen_manifest.sh DIST "https://github.com/ollama/${{ env.epn }}/archive/refs/tags/v${{ needs.release-status.outputs.version }}.tar.gz" "${{ env.epn }}-${{ needs.release-status.outputs.version }}.gh.tar.gz" >> $MAN
-          scripts/gen_manifest.sh DIST "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" >> $MAN
-          scripts/gen_manifest.sh EBUILD "${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild" >> $MAN
-
       - name: Commit and push changes
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
@@ -136,10 +129,56 @@ jobs:
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push || true
 
-  pkgcheck:
+regenerate-manifest:
     runs-on: ubuntu-latest
     needs: create-ebuild
+    needs: [release-status, create-ebuild]
     if: always()
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Set up git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Regenerate manifest
+        run: |
+          MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
+          for ebuild in $CATEGORY/$PN/*.ebuild; do
+            # Remove prefix up to the first dash
+            version="${filename#*-}"
+            # Remove suffix after the version (optiona
+            version="${version%.ebuild}"
+            PN=${{ env.epn }}
+            PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
+            PF=$PN-$PVR
+            PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
+            P=$PN-$PV
+            CATEGORY={{ env.ecn }}
+
+            rm $MAN
+            for file in $CATEGORY/$PN/*; do
+              scripts/gen_manifest.sh $MAN AUX $file
+            done
+            scripts/gen_manifest.sh $MAN DIST https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz ${P}.gh.tar.gz
+            scripts/gen_manifest.sh $MAN DIST https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz
+            scripts/gen_manifest.sh $MAN EBUILD $ebuild
+            scripts/gen_manifest.sh $MAN MISC $CATEGORY/$PN/metadata.xml
+          done
+
+      - name: Commit and push changes
+        run: |
+          git add ./${{ env.ecn }}/${{ env.epn }}/Manifest
+          git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
+          git push || true
+
+  pkgcheck:
+    runs-on: ubuntu-latest
+    needs: regenerate-manifest
     steps:
     - name: Checkout code
       uses: actions/checkout@v5

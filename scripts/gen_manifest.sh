@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
-# Usage: ./generate_manifest.sh TYPE PATH_OR_URL DEST_FILENAME
-# Example: ./generate_manifest.sh DIST https://example.com/file.tar.gz file.tar.gz
+# Usage: ./generate_manifest.sh MANIFEST_FILE TYPE PATH_OR_URL [DEST_FILENAME]
+# Example: ./generate_manifest.sh manifest DIST https://example.com/file.tar.gz
+#          ./generate_manifest.sh manifest EBUILD /path/to/file.ebuild custom_name.ebuild
 
 set -euo pipefail
 
-TYPE="$1"
-INPUT="$2"
-#!/usr/bin/env bash
-# Usage: ./generate_manifest.sh TYPE PATH_OR_URL [DEST_FILENAME]
-# Example: ./generate_manifest.sh DIST https://example.com/file.tar.gz
-#          ./generate_manifest.sh EBUILD /path/to/file.ebuild custom_name.ebuild
-
-set -euo pipefail
-
-TYPE="$1"
-INPUT="$2"
-DEST="${3:-$(basename "$2")}"
+MANIFEST="$1"
+TYPE="$2"
+INPUT="$3"
+DEST="${4:-$(basename "$3")}"
 
 # Determine if INPUT is a URL (starts with http:// or https://)
 if [[ "$INPUT" =~ ^https?:// ]]; then
@@ -35,5 +28,16 @@ SIZE=$(stat -c%s "$FILE")
 BLAKE2B_SUM=$(b2sum "$FILE" | awk '{print $1}')
 SHA512_SUM=$(sha512sum "$FILE" | awk '{print $1}')
 
-echo "$TYPE $DEST $SIZE BLAKE2B $BLAKE2B_SUM SHA512 $SHA512_SUM"
+LINE="$TYPE $DEST $SIZE BLAKE2B $BLAKE2B_SUM SHA512 $SHA512_SUM"
+
+touch "$MANIFEST"
+if ! grep -Fxq "$LINE" "$MANIFEST"; then
+    echo "Writing '$LINE' to $MANIFEST."
+    # Remove any old line containing DEST
+    sed -i "/ $DEST /d" "$MANIFEST"
+    echo "$LINE" >> "$MANIFEST"
+    sort -o "$MANIFEST" "$MANIFEST"
+else
+    echo "Manifest is already up-to-date."
+fi
 
