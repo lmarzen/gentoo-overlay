@@ -102,7 +102,6 @@ jobs:
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
           git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push origin distfiles
-          sleep 5 # make sure changes will be available for next job's checkout
 
   create-ebuild:
     runs-on: ubuntu-latest
@@ -128,7 +127,6 @@ jobs:
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
           git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
           git push || true
-          sleep 5 # make sure changes will be available for next job's checkout
 
   regenerate-manifest:
     runs-on: ubuntu-latest
@@ -144,6 +142,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          sleep 5 && git pull
 
       - name: Regenerate manifest
         run: |
@@ -152,6 +151,7 @@ jobs:
           PN=${{ env.epn }}
           rm -f $MAN
           for ebuild in $CATEGORY/$PN/*.ebuild; do
+            echo "Updating $MAN for $ebuild"
             if [[ $ebuild == *9999* ]]; then
               PV=9999
               PVR=9999
