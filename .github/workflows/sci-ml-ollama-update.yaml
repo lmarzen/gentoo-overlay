@@ -101,7 +101,6 @@ jobs:
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
           git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git pull --rebase &&
           git push origin distfiles || true
 
   create-ebuild:
