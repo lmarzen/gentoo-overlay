@@ -134,7 +134,7 @@ jobs:
     needs: [release-status, build-vendor-tarball, create-ebuild]
     if: always()
     outputs:
-      changed: ${{ steps.check-modified.outputs.changed }}
+      changed: ${{ steps.check_modified.outputs.changed }}
     permissions:
       contents: write
     steps:
@@ -183,7 +183,7 @@ jobs:
           done
 
       - name: Check if manifest changed
-        id: check-modified
+        id: check_modified
         run: |
           FILE=${{ env.ecn }}/${{ env.epn }}/Manifest
           # Check if file is untracked (new file not in git)
@@ -201,7 +201,7 @@ jobs:
           fi
 
       - name: Commit and push changes
-        if: ${{ steps.check-modified.outputs.changed == 'true' }}
+        if: ${{ steps.check_modified.outputs.changed == 'true' }}
         run: |
           git add ${{ env.ecn }}/${{ env.epn }}/Manifest
           git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
@@ -211,7 +211,7 @@ jobs:
   pkgcheck:
     runs-on: ubuntu-latest
     needs: regenerate-manifest
-    if: ${{ needs.regenerate-manifest.outputs.new == 'true' }}
+    if: ${{ needs.regenerate-manifest.outputs.changed == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
