@@ -186,11 +186,17 @@ jobs:
         id: check-modified
         run: |
           FILE=${{ env.ecn }}/${{ env.epn }}/Manifest
-          if git diff --quiet HEAD -- "$FILE"; then
-            echo "$FILE not changed"
-            echo "changed=false" >> $GITHUB_OUTPUT
+          # Check if file is untracked (new file not in git)
+          if git ls-files --error-unmatch "$FILE" > /dev/null 2>&1; then
+            if git diff --quiet -- "$FILE"; then
+              echo "$FILE unmodified"
+              echo "changed=false" >> $GITHUB_OUTPUT
+            else
+              echo "$FILE modified"
+              echo "changed=true" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "$FILE changed (modified, created, or deleted)"
+            echo "$FILE created"
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
