@@ -73,7 +73,7 @@ RDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/${PN}-0.6.3-use-GNUInstallDirs.patch"
+	"${FILESDIR}/${PN}-0.11.11-use-GNUInstallDirs.patch"
 )
 
 pkg_pretend() {
