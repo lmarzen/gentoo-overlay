@@ -2,13 +2,11 @@
 
 set -e
 
-# Configuration
 ECN="sci-ml"
 EPN="ollama"
 OVERLAY_REPO="gentoo-overlay"
 DISTFILES_BRANCH="distfiles"
 
-# Step 1: Get latest Ollama release tag and version
 echo "Fetching latest Ollama release..."
 LATEST_TAG=$(curl -s https://api.github.com/repos/ollama/ollama/releases/latest | jq -r .tag_name)
 LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
