@@ -26,6 +26,8 @@ env:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       changed: ${{ steps.update_script.outputs.changed }}
     steps:

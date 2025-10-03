@@ -51,6 +51,7 @@ else
     git push origin "$DISTFILES_BRANCH" || true
 
     echo "Creating ebuild..."
+    git checkout main
     cp "$ECN/$EPN/${EPN}-9999.ebuild" "$ECN/$EPN/${EPN}-${LATEST_VERSION}.ebuild"
     git add "$ECN/$EPN/${EPN}-${LATEST_VERSION}.ebuild"
 fi
