@@ -17,12 +17,12 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND="
     ${PYTHON_DEPS}
-	>=gnome-extra/nemo-2.0.0
-	>=dev-libs/glib-2.14.0:2
-	>=x11-libs/gtk+-3.0
+    >=gnome-extra/nemo-2.0.0
+    >=dev-libs/glib-2.14.0:2
+    >=x11-libs/gtk+-3.0
     $(python_gen_cond_dep '
         dev-python/pygobject:3[${PYTHON_USEDEP}]
-	')
+    ')
 "
 RDEPEND="
     ${DEPEND}
