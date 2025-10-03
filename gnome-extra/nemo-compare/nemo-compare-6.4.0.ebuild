@@ -36,6 +36,7 @@ RDEPEND="
 src_install() {
     insinto /usr/share/nemo-python/extensions
     doins ${S}/src/nemo-compare.py
+    insinto /usr/share/nemo-compare
     doins ${S}/src/utils.py
     doins ${S}/src/nemo-compare-preferences.py
     insinto /usr/bin
