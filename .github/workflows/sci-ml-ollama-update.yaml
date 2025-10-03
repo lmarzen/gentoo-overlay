@@ -46,7 +46,7 @@ jobs:
   pkgcheck:
     runs-on: ubuntu-latest
     needs: update
-    if: ${{ needs.update.outputs.changed == 'true' }}
+    if: ${{ needs.update.outputs.changed == '1' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
