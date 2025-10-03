@@ -20,198 +20,33 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  ecn: sci-ml
-  epn: ollama
+  ECN: sci-ml
+  EPN: ollama
 
 jobs:
-  release-status:
+  update:
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.get_tag.outputs.tag }}
-      version: ${{ steps.get_tag.outputs.version }}
-      new: ${{ steps.requirements.outputs.new }}
-    steps:
-      - name: Get latest Ollama release tag
-        id: get_tag
-        run: |
-          LATEST_TAG=$(curl -s https://api.github.com/repos/ollama/ollama/releases/latest | jq -r .tag_name)
-          LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
-          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Checkout overlay repo
-        uses: actions/checkout@v5
-
-      - name: Check build requirements
-        id: requirements
-        run: |
-          if [ -f "${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ steps.get_tag.outputs.version }}.ebuild" ]; then
-            echo "new=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "new=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  build-vendor-tarball:
-    runs-on: ubuntu-latest
-    needs: release-status
-    if: ${{ needs.release-status.outputs.new == 'true' }}
-    permissions:
-      contents: write
+      changed: ${{ steps.update_script.outputs.changed }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0 # needed to push to distfiles branch
+          fetch-depth: 0
 
       - name: Set up git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Clone ollama
-        run: |
-          git clone --depth 1 --branch "${{ needs.release-status.outputs.tag }}" https://github.com/ollama/ollama.git ${{ env.epn }}-${{ needs.release-status.outputs.version }}
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: ${{ env.epn }}-${{ needs.release-status.outputs.version }}/go.mod
-          cache: false
-
-      - name: Vendor dependencies
-        working-directory: ${{ env.epn }}-${{ needs.release-status.outputs.version }}
-        run: |
-          go mod tidy
-          go mod vendor
-
-      - name: Create vendor tarball
-        run: |
-          tar -caf "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.epn }}-${{ needs.release-status.outputs.version }}/vendor
-
-      - name: Switch to distfiles branch
-        run: |
-          git checkout distfiles || git switch --orphan distfiles
-
-      - name: Move tarball into correct location
-        run: |
-          mkdir -p ${{ env.ecn }}/${{ env.epn }}
-          mv "${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz" ${{ env.ecn }}/${{ env.epn }}/
-
-      - name: Commit and push changes
-        run: |
-          git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}-vendor.tar.xz
-          git commit -m "Add vendor distfiles for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git push origin distfiles || true
-
-  create-ebuild:
-    runs-on: ubuntu-latest
-    needs: [release-status]
-    if: ${{ needs.release-status.outputs.new == 'true' }}
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout overlay repo
-        uses: actions/checkout@v5
-
-      - name: Set up git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Create ebuild
-        run: |
-          cp ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-9999.ebuild ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
-
-      - name: Commit and push changes
-        run: |
-          git add ${{ env.ecn }}/${{ env.epn }}/${{ env.epn }}-${{ needs.release-status.outputs.version }}.ebuild
-          git commit -m "Add ebuild for new ${{ env.ecn }}/${{ env.epn }} releases tag ${{ needs.release-status.outputs.tag }}" &&
-          git pull --rebase &&
-          git push || true
-
-  regenerate-manifest:
-    runs-on: ubuntu-latest
-    needs: [release-status, build-vendor-tarball, create-ebuild]
-    if: always()
-    outputs:
-      changed: ${{ steps.check_modified.outputs.changed }}
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Pull latest changes
-        run: git pull
-
-      - name: Set up git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Regenerate manifest
-        run: |
-          MAN=${{ env.ecn }}/${{ env.epn }}/Manifest
-          CATEGORY=${{ env.ecn }}
-          PN=${{ env.epn }}
-          rm -f $MAN
-          for ebuild in $CATEGORY/$PN/*.ebuild; do
-            echo "Updating $MAN for $ebuild"
-            if [[ $ebuild == *9999* ]]; then
-              PV=9999
-              PVR=9999
-            else
-              PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
-              PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
-            fi
-            P=$PN-$PV
-            PF=$PN-$PVR
-
-            echo $CATEGORY $PN $PV $PVR $P $PF
-            echo $ebuild
-
-            for file in $CATEGORY/$PN/files/*; do
-              echo "  $file"
-              scripts/gen_manifest.sh $MAN AUX $file
-            done
-            if [[ $PV != 9999 ]]; then
-              scripts/gen_manifest.sh $MAN DIST https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz ${P}.gh.tar.gz
-              scripts/gen_manifest.sh $MAN DIST https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz
-            fi
-            scripts/gen_manifest.sh $MAN EBUILD $ebuild
-            scripts/gen_manifest.sh $MAN MISC $CATEGORY/$PN/metadata.xml
-          done
-
-      - name: Check if manifest changed
-        id: check_modified
-        run: |
-          FILE=${{ env.ecn }}/${{ env.epn }}/Manifest
-          # Check if file is untracked (new file not in git)
-          if git ls-files --error-unmatch "$FILE" > /dev/null 2>&1; then
-            if git diff --quiet -- "$FILE"; then
-              echo "$FILE unmodified"
-              echo "changed=false" >> $GITHUB_OUTPUT
-            else
-              echo "$FILE modified"
-              echo "changed=true" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "$FILE created"
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Commit and push changes
-        if: ${{ steps.check_modified.outputs.changed == 'true' }}
-        run: |
-          git add ${{ env.ecn }}/${{ env.epn }}/Manifest
-          git commit -m "Updated manifest for ${{ env.ecn }}/${{ env.epn }}" &&
-          git pull --rebase &&
-          git push || true
+      - name: Run update script
+        id: update_script
+        run: scripts/sci-ml/ollama/update.sh
 
   pkgcheck:
     runs-on: ubuntu-latest
-    needs: regenerate-manifest
-    if: ${{ needs.regenerate-manifest.outputs.changed == 'true' }}
+    needs: update
+    if: ${{ needs.update.outputs.changed == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
