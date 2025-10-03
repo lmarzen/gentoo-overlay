@@ -40,4 +40,5 @@ src_install() {
     doins ${S}/src/nemo-compare-preferences.py
     insinto /usr/bin
     doins ${S}/src/nemo-compare-preferences
+    fperms +x /usr/bin/nemo-compare-preferences
 }
