@@ -103,9 +103,9 @@ else
     echo "$MAN created"
     MAN_UPDATED=1
 fi
-if $MAN_UPDATED; then
+if [ "$MAN_UPDATED" -eq 1 ]; then
     git add "$MAN"
-    if $NEW_RELEASE; then
+    if [ "$NEW_RELEASE" -eq 1 ]; then
         git commit -m "Add ebuild for new $ECN/$EPN releases tag $LATEST_TAG" || true
     else
         git commit -m "Updated manifest for $ECN/$EPN" || true
