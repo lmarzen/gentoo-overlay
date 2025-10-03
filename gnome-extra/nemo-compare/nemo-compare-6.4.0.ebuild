@@ -2,7 +2,7 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_SINGLE_IMPL=1
-PYTHON_COMPAT=( python3_{10..13} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
@@ -28,8 +28,20 @@ DEPEND="
 "
 RDEPEND="
     ${COMMON_DEPS}
-    $(python_gen_cond_dep '
-        dev-python/pygobject:3[${PYTHON_USEDEP}]
-    ')
 "
+# RDEPEND="
+#     ${COMMON_DEPS}
+# $(python_gen_cond_dep '
+#     dev-python/pygobject:3[${PYTHON_USEDEP}]
+# ')
+# "
 
+src_install() {
+    # Create target directory
+    insinto /usr/share/nemo-python/extensions/
+    #
+    # # Install files
+    # doins ${S}/src/nemo-compare.py
+    # doins ${S}/src/utils.py
+    # doins ${S}/src/nemo-compare-preferences.py
+}
