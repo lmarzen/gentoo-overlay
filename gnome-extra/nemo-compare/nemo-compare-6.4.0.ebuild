@@ -35,7 +35,30 @@ RDEPEND="
 # src_compile() {
 #     distutils-r1_src_compile
 # }
-src_install() {
-    distutils-r1_src_install --root="${D} --prefix=/usr"
+# src_install() {
+#     distutils-r1_src_install --root="${D} --prefix=/usr"
+# }
+src_prepare() {
+	default
+	use python && distutils-r1_src_prepare
 }
+
+src_configure() {
+	use python && distutils-r1_src_configure
+}
+
+src_compile() {
+	if use python ; then
+		distutils-r1_src_compile
+	fi
+}
+
+src_install() {
+	emake DESTDIR="${D}" PREFIX="/usr" install
+
+	if use python ; then
+		distutils-r1_src_install
+	fi
+}
+
 
