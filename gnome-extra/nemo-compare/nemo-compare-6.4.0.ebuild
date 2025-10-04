@@ -37,12 +37,13 @@ RDEPEND="
 #     distutils-r1_src_compile
 # }
 src_install() {
-    default
+    # default
     # distutils-r1_src_install --root="${D} --prefix=/usr"
     DISTUTILS_ARGS=(
         --root="${D}"
         --prefix="/usr"
     )
+    distutils-r1_src_install
 }
 
 # python_install() {
