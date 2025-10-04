@@ -33,7 +33,7 @@ RDEPEND="
 "
 
 src_install() {
-    default
+    distutils-r1_src_install
     insinto /usr/share/nemo-python/extensions
     doins ${S}/src/nemo-compare.py
     fperms +x /usr/share/nemo-python/extensions/nemo-compare.py
