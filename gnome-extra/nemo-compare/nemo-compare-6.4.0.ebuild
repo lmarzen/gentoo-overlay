@@ -30,6 +30,10 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
+src_compile() {
+    edo ${EPYTHON} setup.py build
+}
+
 src_install() {
     edo ${EPYTHON} setup.py install --prefix="${EPREFIX}/usr" --root="${D}"
     python_optimize
