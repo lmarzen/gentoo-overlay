@@ -33,6 +33,5 @@ RDEPEND="
 "
 
 src_install() {
-    # distutils-r1_src_install
-    distutils_pep517_install ${EPREFIX}
+    distutils-r1_src_install
 }
