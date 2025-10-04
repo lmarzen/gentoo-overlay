@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>98473324+lmarzen@users.noreply.github.com</email>
+		<name>Luke Marzen</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">linuxmint/nemo-extensions</remote-id>
+	</upstream>
+</pkgmetadata>
