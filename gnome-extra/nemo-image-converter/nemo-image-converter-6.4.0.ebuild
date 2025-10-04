@@ -18,5 +18,3 @@ DEPEND="
 RDEPEND="
 	${DEPEND}
 "
-
-EAPI=8
