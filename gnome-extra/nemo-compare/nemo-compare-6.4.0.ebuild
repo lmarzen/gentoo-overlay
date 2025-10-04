@@ -39,6 +39,15 @@ RDEPEND="
 src_install() {
     # default
     # distutils-r1_src_install --root="${D} --prefix=/usr"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
+    echo "${D}"
     DISTUTILS_ARGS=(
         --root="${D}"
         --prefix="/usr"
