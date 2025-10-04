@@ -32,30 +32,16 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
-
-# src_compile() {
-#     distutils-r1_src_compile
-# }
 src_install() {
-    # default
-    # distutils-r1_src_install --root="${D} --prefix=/usr"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    echo "${D}"
-    DISTUTILS_ARGS=(
-        --root="${D}"
-        --prefix="/usr"
-    )
-    distutils-r1_src_install
+    insinto /usr/share/nemo-python/extensions
+    doins ${S}/src/nemo-compare.py
+    fperms +x /usr/share/nemo-python/extensions/nemo-compare.py
+    insinto /usr/share/nemo-compare
+    doins ${S}/src/utils.py
+    doins ${S}/src/nemo-compare-preferences.py
+    fperms +x /usr/share/nemo-compare/utils.py
+    fperms +x /usr/share/nemo-compare/nemo-compare-preferences.py
+    insinto /usr/bin
+    doins ${S}/src/nemo-compare-preferences
+    fperms +x /usr/bin/nemo-compare-preferences
 }
-
-# python_install() {
-#     esetup.py install "${DISTUTILS_ARGS[@]}" --root="${D}" --prefix="/usr"
-# }
-
