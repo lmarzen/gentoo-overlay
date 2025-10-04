@@ -32,17 +32,24 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
-src_install() {
-    distutils-r1_src_install
-    insinto /usr/share/nemo-python/extensions
-    doins ${S}/src/nemo-compare.py
-    fperms +x /usr/share/nemo-python/extensions/nemo-compare.py
-    insinto /usr/share/nemo-compare
-    doins ${S}/src/utils.py
-    doins ${S}/src/nemo-compare-preferences.py
-    fperms +x /usr/share/nemo-compare/utils.py
-    fperms +x /usr/share/nemo-compare/nemo-compare-preferences.py
-    insinto /usr/bin
-    doins ${S}/src/nemo-compare-preferences
-    fperms +x /usr/bin/nemo-compare-preferences
+# src_install() {
+#     distutils-r1_src_install
+#     insinto /usr/share/nemo-python/extensions
+#     doins ${S}/src/nemo-compare.py
+#     fperms +x /usr/share/nemo-python/extensions/nemo-compare.py
+#     insinto /usr/share/nemo-compare
+#     doins ${S}/src/utils.py
+#     doins ${S}/src/nemo-compare-preferences.py
+#     fperms +x /usr/share/nemo-compare/utils.py
+#     fperms +x /usr/share/nemo-compare/nemo-compare-preferences.py
+#     insinto /usr/bin
+#     doins ${S}/src/nemo-compare-preferences
+#     fperms +x /usr/bin/nemo-compare-preferences
+# }
+python_install() {
+    esetup.py install \
+        --root="${D}" \
+        --prefix="/usr" \
+        --install-lib="$(python_get_sitedir)" \
+        --install-scripts="/usr/bin"
 }
