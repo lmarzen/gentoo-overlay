@@ -32,10 +32,10 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
-src_compile() {
-    distutils-r1_src_compile
-}
+# src_compile() {
+#     distutils-r1_src_compile
+# }
 src_install() {
-    distutils-r1_src_install --root="${D}"
+    distutils-r1_src_install --root="${D} --prefix=/usr"
 }
 
