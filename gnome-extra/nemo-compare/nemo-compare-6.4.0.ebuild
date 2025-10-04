@@ -1,8 +1,10 @@
 EAPI=8
 
+DISTUTILS_USE_PEP517=setuptools
+DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{10..13} )
 
-inherit edo python-single-r1
+inherit distutils-r1
 
 DESCRIPTION="Context menu comparison extension for Nemo file manager"
 HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/nemo-extensions"
@@ -30,11 +32,11 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
-src_compile() {
-    edo ${EPYTHON} setup.py build
-}
+# src_compile() {
+#     # edo ${EPYTHON} setup.py build
+# }
 
-src_install() {
-    edo ${EPYTHON} setup.py install --prefix="${EPREFIX}/usr" --root="${D}"
-    python_optimize
-}
+# src_install() {
+    # edo ${EPYTHON} setup.py install --prefix="${EPREFIX}/usr" --root="${D}"
+    # python_optimize
+# }
