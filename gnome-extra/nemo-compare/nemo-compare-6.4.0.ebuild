@@ -2,7 +2,7 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_SINGLE_IMPL=1
-PYTHON_COMPAT=( python3_{10..13} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
@@ -38,4 +38,8 @@ RDEPEND="
 # src_install() {
 #     distutils-r1_src_install --root="${D} --prefix=/usr"
 # }
+
+python_install() {
+    esetup.py install "${DISTUTILS_ARGS[@]}" --root="${D}" --prefix="/usr"
+}
 
