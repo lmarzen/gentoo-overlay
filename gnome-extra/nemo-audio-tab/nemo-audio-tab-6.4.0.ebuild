@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
-DESCRIPTION="Context menu comparison extension for Nemo file manager"
+DESCRIPTION="View audio tag information from the file manager's properties tab"
 HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/nemo-extensions"
 SRC_URI="https://github.com/linuxmint/nemo-extensions/archive/${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/nemo-extensions-${PV}/${PN}"
