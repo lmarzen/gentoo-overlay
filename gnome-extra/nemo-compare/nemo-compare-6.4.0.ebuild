@@ -1,7 +1,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-DISTUTILS_SINGLE_IMPL=1
+# DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
@@ -38,23 +38,4 @@ RDEPEND="
 # src_install() {
 #     distutils-r1_src_install --root="${D} --prefix=/usr"
 # }
-src_prepare() {
-	default
-    distutils-r1_src_prepare
-}
-
-src_configure() {
-    distutils-r1_src_configure
-}
-
-src_compile() {
-	distutils-r1_src_compile
-}
-
-src_install() {
-	emake DESTDIR="${D}" PREFIX="/usr" install
-
-    distutils-r1_src_install
-}
-
 
