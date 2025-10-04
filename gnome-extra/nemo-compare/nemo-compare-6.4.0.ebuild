@@ -32,6 +32,10 @@ RDEPEND="
     >=gnome-extra/nemo-python-3.8.0
 "
 
+DISTUTILS_ARGS=(
+    --root="${D}"
+    --prefix="/usr"
+)
 # src_compile() {
 #     distutils-r1_src_compile
 # }
@@ -39,7 +43,7 @@ RDEPEND="
 #     distutils-r1_src_install --root="${D} --prefix=/usr"
 # }
 
-python_install() {
-    esetup.py install "${DISTUTILS_ARGS[@]}" --root="${D}" --prefix="/usr"
-}
+# python_install() {
+#     esetup.py install "${DISTUTILS_ARGS[@]}" --root="${D}" --prefix="/usr"
+# }
 
