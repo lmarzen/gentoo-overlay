@@ -34,6 +34,8 @@ RDEPEND="
 
 src_compile() {
     distutils-r1_src_compile
-    emake DESTDIR="${D}" install
+}
+src_install() {
+    distutils-r1_src_install --root="${D}"
 }
 
