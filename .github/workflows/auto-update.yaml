@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      manifest-updated: ${{ steps.signal-pkgcheck.outputs.manifest-updated }}
     steps:
       - name: Checkout overlay repo
         uses: actions/checkout@v5
@@ -33,12 +35,27 @@ jobs:
           EPN: ollama
         run: scripts/sci-ml/ollama/update.sh
 
-      - name: pkgcheck
-        if: env.MANIFEST_UPDATED == 'true'
-        uses: pkgcore/pkgcheck-action@v1
-
       - name: Push changes
         if: env.MANIFEST_UPDATED == 'true'
         run: |
-          git pull --rebase origin main || true
+          git pull --rebase origin main
           git push
+
+      - name: Signal pkgcheck
+        id: signal-pkgcheck
+        if: env.MANIFEST_UPDATED == 'true'
+        run: echo "manifest-updated=true" >> $GITHUB_OUTPUT
+
+  pkgcheck:
+    runs-on: ubuntu-latest
+    needs: regen-manifest
+    if: needs.auto-update.outputs.manifest-updated == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Pull latest changes
+        run: git pull
+
+      - name: Run pkgcheck
+        uses: pkgcore/pkgcheck-action@v1
