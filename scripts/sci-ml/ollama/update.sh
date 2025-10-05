@@ -46,7 +46,7 @@ else
     echo "Committing and pushing distfiles changes..."
     git add "$ECN/$EPN/${EPN}-${LATEST_VERSION}-vendor.tar.xz"
     git commit -m "Add vendor distfiles for new $ECN/$EPN releases tag $LATEST_TAG" || true
-    git push origin "$DISTFILES_BRANCH" || true
+    scripts/push-with-backoff.sh "$DISTFILES_BRANCH"
 
     echo "Creating ebuild..."
     git checkout main
@@ -104,12 +104,11 @@ fi
 if [ "$MAN_UPDATED" -eq 1 ]; then
     git add "$MAN"
     if [ "$NEW_RELEASE" -eq 1 ]; then
-        git commit -m "Add ebuild for new $ECN/$EPN releases tag $LATEST_TAG" || true
+        git commit -m "Add ebuild for new $ECN/$EPN releases tag $LATEST_TAG"
     else
-        git commit -m "Updated manifest for $ECN/$EPN" || true
+        git commit -m "Updated manifest for $ECN/$EPN"
     fi
-    git pull --rebase || true
-    git push || true
+    scripts/push-with-backoff.sh main
 fi
 
 if [ -n "$GITHUB_OUTPUT" ]; then

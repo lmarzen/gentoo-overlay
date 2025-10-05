@@ -63,9 +63,8 @@ else
 fi
 if [ "$MAN_UPDATED" -eq 1 ]; then
     git add "$MAN"
-    git commit -m "Updated manifest for $ECN/$EPN" || true
-    git pull --rebase || true
-    git push || true
+    git commit -m "Updated manifest for $ECN/$EPN"
+    scripts/push-with-backoff.sh main
 fi
 
 if [ -n "$GITHUB_OUTPUT" ]; then
