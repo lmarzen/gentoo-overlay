@@ -34,8 +34,8 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
     fi
     if [[ $PV != 9999 ]]; then
         # assumes single source
-        eval "SRC_URI=$(grep '^SRC_URI=' "$file" | sed -E 's/^SRC_URI="([^" ]+).*/\1/')"
-        eval "DEST=$(grep '^SRC_URI=' "$file" | sed -n 's/.*\-> \(.*\)"$/\1/p')"
+        eval "SRC_URI=$(grep '^SRC_URI=' "$ebuild" | sed -E 's/^SRC_URI="([^" ]+).*/\1/')"
+        eval "DEST=$(grep '^SRC_URI=' "$ebuild" | sed -n 's/.*\-> \(.*\)"$/\1/p')"
         if [[ -z "$DEST" ]]; then
             scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}"
         else
