@@ -17,9 +17,9 @@ on:
       - 'gnome-extra/nemo-emblems/**'
       - 'scripts/gnome-extra/nemo-emblems/**'
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: false
+# concurrency:
+#   group: ci-${{ github.ref }}
+#   cancel-in-progress: false
 
 env:
   ECN: gnome-extra
@@ -47,6 +47,9 @@ jobs:
 
   pkgcheck:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ci-pkgcheck-${{ github.ref }}
+      cancel-in-progress: true
     needs: update
     if: ${{ needs.update.outputs.changed == '1' }}
     steps:
