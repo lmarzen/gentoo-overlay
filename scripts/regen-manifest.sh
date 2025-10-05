@@ -33,11 +33,14 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
         done
     fi
     if [[ $PV != 9999 ]]; then
-        while IFS="|" read -r SRCURI DEST; do
-            echo "SRC_URI='$SRC'"
+        while IFS="|" read -r SRC_URI DEST; do
+            echo "SRC_URI='$SRC_URI'"
             echo "DEST='$DEST'"
+            echo "evaluating SRC_URI and DEST"
             eval "SRC_URI=$SRC_URI"
             eval "DEST=$DEST"
+            echo "SRC_URI='$SRC_URI'"
+            echo "DEST='$DEST'"
             if [[ -z "$DEST" ]]; then
                 scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}"
             else
