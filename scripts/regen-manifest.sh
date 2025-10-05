@@ -52,21 +52,22 @@ MAN_UPDATED=0
 if git ls-files --error-unmatch "$MAN" > /dev/null 2>&1; then
     if git diff --quiet -- "$MAN"; then
         echo "$MAN unmodified"
-        MAN_UPDATED=0
+        MAN_UPDATED=false
     else
         echo "$MAN modified"
-        MAN_UPDATED=1
+        MAN_UPDATED=true
     fi
 else
     echo "$MAN created"
-    MAN_UPDATED=1
+    MAN_UPDATED=true
 fi
-if [ "$MAN_UPDATED" -eq 1 ]; then
+if [[ $MAN_UPDATED == true ]]; then
     git add "$MAN"
     git commit -m "Updated manifest for $ECN/$EPN"
-    scripts/push-with-backoff.sh main
 fi
 
-if [ -n "$GITHUB_OUTPUT" ]; then
-    echo "changed=$MAN_UPDATED" >> "$GITHUB_OUTPUT"
+if [[ -n "$GITHUB_ENV" ]]; then
+    if [ $MANIFEST_UPDATED == true ]; then
+        echo "MANIFEST_UPDATED=$MAN_UPDATED" >> "$GITHUB_ENV"
+    fi
 fi

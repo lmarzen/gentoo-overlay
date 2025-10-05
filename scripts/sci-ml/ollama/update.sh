@@ -15,10 +15,10 @@ echo "Latest version: $LATEST_VERSION"
 
 EBUILD_PATH="$ECN/$EPN/$EPN-$LATEST_VERSION.ebuild"
 if [ -f "$EBUILD_PATH" ]; then
-    NEW_RELEASE=0
+    NEW_RELEASE=false
     echo "Ebuild for latest release already exists. Skipping vendor tarball and ebuild creation."
 else
-    NEW_RELEASE=1
+    NEW_RELEASE=true
     echo "New release detected. Proceeding with vendor tarball and ebuild creation."
 
     echo "Cloning ollama repository..."
@@ -46,71 +46,16 @@ else
     echo "Committing and pushing distfiles changes..."
     git add "$ECN/$EPN/${EPN}-${LATEST_VERSION}-vendor.tar.xz"
     git commit -m "Add vendor distfiles for new $ECN/$EPN releases tag $LATEST_TAG" || true
-    scripts/push-with-backoff.sh "$DISTFILES_BRANCH"
+    git pull --rebase origin "$DISTFILES_BRANCH" || true
+    git push origin "$DISTFILES_BRANCH"
 
     echo "Creating ebuild..."
-    git checkout main
+    git switch main
     cp "$ECN/$EPN/${EPN}-9999.ebuild" "$ECN/$EPN/${EPN}-${LATEST_VERSION}.ebuild"
     git add "$ECN/$EPN/${EPN}-${LATEST_VERSION}.ebuild"
-fi
 
-echo "Regenerating manifest..."
-MAN="$ECN/$EPN/Manifest"
-CATEGORY="$ECN"
-PN="$EPN"
-rm -f "$MAN"
+    echo "Committing new ebuild..."
+    git commit -m "Add ebuild for new $ECN/$EPN releases tag $LATEST_TAG"
 
-for ebuild in "$CATEGORY/$PN"/*.ebuild; do
-    echo "Updating $MAN for $ebuild"
-    if [[ $ebuild == *9999* ]]; then
-        PV=9999
-        PVR=9999
-    else
-        PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
-        PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
-    fi
-    P=$PN-$PV
-    PF=$PN-$PVR
-
-    echo $CATEGORY $PN $PV $PVR $P $PF
-    echo $ebuild
-
-    for file in "$CATEGORY/$PN/files/"*; do
-        echo "  $file"
-        scripts/gen_manifest.sh "$MAN" AUX "$file"
-    done
-    if [[ $PV != 9999 ]]; then
-        scripts/gen_manifest.sh "$MAN" DIST "https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz" "${P}.gh.tar.gz"
-        scripts/gen_manifest.sh "$MAN" DIST "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz"
-    fi
-    scripts/gen_manifest.sh "$MAN" EBUILD "$ebuild"
-    scripts/gen_manifest.sh "$MAN" MISC "$CATEGORY/$PN/metadata.xml"
-done
-
-echo "Checking if manifest changed..."
-MAN_UPDATED=0
-if git ls-files --error-unmatch "$MAN" > /dev/null 2>&1; then
-    if git diff --quiet -- "$MAN"; then
-        echo "$MAN unmodified"
-        MAN_UPDATED=0
-    else
-        echo "$MAN modified"
-        MAN_UPDATED=1
-    fi
-else
-    echo "$MAN created"
-    MAN_UPDATED=1
-fi
-if [ "$MAN_UPDATED" -eq 1 ]; then
-    git add "$MAN"
-    if [ "$NEW_RELEASE" -eq 1 ]; then
-        git commit -m "Add ebuild for new $ECN/$EPN releases tag $LATEST_TAG"
-    else
-        git commit -m "Updated manifest for $ECN/$EPN"
-    fi
-    scripts/push-with-backoff.sh main
-fi
-
-if [ -n "$GITHUB_OUTPUT" ]; then
-    echo "changed=$MAN_UPDATED" >> "$GITHUB_OUTPUT"
+    scripts/regen-manifest.sh
 fi

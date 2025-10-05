@@ -1,0 +1,109 @@
+name: regen-manifest
+
+on:
+  workflow_dispatch: # manual trigger
+  push:
+    branches: [main]
+
+jobs:
+  regen-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout overlay repo
+        uses: actions/checkout@v5
+
+      - name: Set up git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Paths filter
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            gnome-extra-nemo-audio-tab:
+              - 'gnome-extra/nemo-audio-tab/**'
+            gnome-extra-nemo-compare:
+              - 'gnome-extra/nemo-compare/**'
+            gnome-extra-nemo-emblems:
+              - 'gnome-extra/nemo-emblems/**'
+            gnome-extra-nemo-image-converter:
+              - 'gnome-extra/nemo-image-converter/**'
+            gnome-extra-nemo-media-columns:
+              - 'gnome-extra/nemo-media-columns/**'
+            gnome-extra-nemo-python:
+              - 'gnome-extra/nemo-python/**'
+            gnome-extra-nemo-repairer:
+              - 'gnome-extra/nemo-repairer/**'
+            sci-ml-ollama:
+              - 'sci-ml/ollama/**'
+
+      - name: Regenerate manifest for gnome-extra/nemo-audio-tab
+        if: steps.filter.outputs.gnome-extra-nemo-audio-tab == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-audio-tab
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-compare
+        if: steps.filter.outputs.gnome-extra-nemo-compare == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-compare
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-emblems
+        if: steps.filter.outputs.gnome-extra-nemo-emblems == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-emblems
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-image-converter
+        if: steps.filter.outputs.gnome-extra-nemo-image-converter == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-image-converter
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-media-columns
+        if: steps.filter.outputs.gnome-extra-nemo-media-columns == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-media-columns
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-python
+        if: steps.filter.outputs.gnome-extra-nemo-python == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-python
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for gnome-extra/nemo-repairer
+        if: steps.filter.outputs.gnome-extra-nemo-repairer == 'true'
+        env:
+          ECN: gnome-extra
+          EPN: nemo-repairer
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for sci-ml/ollama
+        if: steps.filter.outputs.sci-ml-ollama == 'true'
+        env:
+          ECN: sci-ml
+          EPN: ollama
+        run: scripts/regen-manifest.sh
+
+      - name: pkgcheck
+        id: pkgcheck
+        if: env.MANIFEST_UPDATED == 'true'
+        uses: pkgcore/pkgcheck-action@v1
+
+      - name: Push changes
+        needs: pkgcheck
+        permissions:
+          contents: write
+        run: |
+          git pull --rebase origin main || true
+          git push

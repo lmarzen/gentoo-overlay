@@ -1,0 +1,45 @@
+name: auto-update
+
+on:
+  workflow_dispatch: # manual trigger
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  auto-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout overlay repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Update sci-ml/ollama
+        env:
+          ECN: sci-ml
+          EPN: ollama
+        run: scripts/sci-ml/ollama/update.sh
+
+      - name: Update2 sci-ml/ollama
+        env:
+          ECN: sci-ml
+          EPN: ollama
+        run: scripts/sci-ml/ollama/update.sh
+
+      - name: pkgcheck
+        id: pkgcheck
+        if: env.MANIFEST_UPDATED == 'true'
+        uses: pkgcore/pkgcheck-action@v1
+
+      - name: Push changes
+        needs: pkgcheck
+        run: |
+          git pull --rebase origin main || true
+          git push
