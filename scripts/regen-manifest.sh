@@ -36,7 +36,7 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
         while IFS="|" read -r SRC_URI DEST; do
             echo "SRC_URI='$SRC_URI'"
             echo "DEST='$DEST'"
-            echo "evaluating SRC_URI and DEST"
+            echo "evaluating SRC_URI and DEST.."
             eval "SRC_URI=$SRC_URI"
             eval "DEST=$DEST"
             echo "SRC_URI='$SRC_URI'"
@@ -72,7 +72,7 @@ if [[ $MAN_UPDATED == true ]]; then
 fi
 
 if [[ -n "$GITHUB_ENV" ]]; then
-    if [ $MANIFEST_UPDATED == true ]; then
+    if [[ $MANIFEST_UPDATED == true ]]; then
         echo "MANIFEST_UPDATED=$MAN_UPDATED" >> "$GITHUB_ENV"
     fi
 fi
