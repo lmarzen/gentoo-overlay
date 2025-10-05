@@ -43,7 +43,7 @@ jobs:
         if: ${{ env.MANIFEST_UPDATED == 'true' }}
         run: |
           git pull --rebase origin main
-          git push
+          git push origin main
 
       - name: Signal pkgcheck
         id: signal-pkgcheck

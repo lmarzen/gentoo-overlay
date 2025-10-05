@@ -8,6 +8,15 @@ on:
 jobs:
   changes:
     runs-on: ubuntu-latest
+    outputs:
+      gnome-extra-nemo-audio-tab:       ${{ steps.filter.outputs.gnome-extra-nemo-audio-tab }}
+      gnome-extra-nemo-compare:         ${{ steps.filter.outputs.gnome-extra-nemo-compare }}
+      gnome-extra-nemo-emblems:         ${{ steps.filter.outputs.gnome-extra-nemo-emblems }}
+      gnome-extra-nemo-image-converter: ${{ steps.filter.outputs.gnome-extra-nemo-image-converter }}
+      gnome-extra-nemo-media-columns:   ${{ steps.filter.outputs.gnome-extra-nemo-media-columns }}
+      gnome-extra-nemo-python:          ${{ steps.filter.outputs.gnome-extra-nemo-python }}
+      gnome-extra-nemo-repairer:        ${{ steps.filter.outputs.gnome-extra-nemo-repairer }}
+      sci-ml-ollama:                    ${{ steps.filter.outputs.sci-ml-ollama }}
     steps:
       - uses: actions/checkout@v5
       - uses: dorny/paths-filter@v3
@@ -107,7 +116,7 @@ jobs:
         if: ${{ env.MANIFEST_UPDATED == 'true' }}
         run: |
           git pull --rebase origin main
-          git push
+          git push origin main
 
       - name: Signal pkgcheck
         id: signal-pkgcheck
