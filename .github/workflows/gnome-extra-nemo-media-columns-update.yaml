@@ -65,10 +65,3 @@ jobs:
           echo "Job was cancelled - pkgcheck will be run by a newer job"
           # Exit successfully when cancelled
           exit 0
-
-      - name: Handle always
-        if: ${{ always() }}
-        continue-on-error: true
-        run: |
-          echo "always was ran"
-          # Exit successfully when cancelled
