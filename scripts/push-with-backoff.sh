@@ -19,7 +19,7 @@ for i in $(seq 1 $MAX_RETRIES); do
   else
     echo "Push failed, retrying..."
     git pull --rebase origin "$BRANCH"
-    sleep $((RANDOM % 10 + 1))  # random backoff
+    sleep $((RANDOM % 20 + 1))  # random backoff
   fi
 done
 
