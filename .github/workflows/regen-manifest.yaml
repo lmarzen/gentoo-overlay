@@ -34,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: changes
     outputs:
       manifest-updated: ${{ steps.signal-pkgcheck.outputs.manifest-updated }}
     steps:

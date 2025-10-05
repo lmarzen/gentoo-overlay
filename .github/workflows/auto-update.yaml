@@ -48,7 +48,7 @@ jobs:
 
   pkgcheck:
     runs-on: ubuntu-latest
-    needs: regen-manifest
+    needs: auto-update
     if: needs.auto-update.outputs.manifest-updated == 'true'
     steps:
       - name: Checkout code
