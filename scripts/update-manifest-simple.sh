@@ -26,10 +26,12 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
     echo $CATEGORY $PN $PV $PVR $P $PF
     echo $ebuild
 
-    for file in "$CATEGORY/$PN/files/"*; do
-        echo "  $file"
-        scripts/gen_manifest.sh "$MAN" AUX "$file"
-    done
+    if [ -d "$CATEGORY/$PN/files/" ]; then
+        for file in "$CATEGORY/$PN/files/"*; do
+            echo "  $file"
+            scripts/gen_manifest.sh "$MAN" AUX "$file"
+        done
+    fi
     if [[ $PV != 9999 ]]; then
         # assumes single source
         eval "SRC_URI=$(grep '^SRC_URI=' "$file" | sed -E 's/^SRC_URI="([^" ]+).*/\1/')"
