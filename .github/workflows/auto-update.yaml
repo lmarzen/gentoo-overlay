@@ -4,6 +4,10 @@ on:
   workflow_dispatch: # manual trigger
   schedule:
     - cron: "0 3 * * *"
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auto-update.yaml'
 
 jobs:
   auto-update:
