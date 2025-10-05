@@ -11,9 +11,10 @@ HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/
 SRC_URI="https://github.com/linuxmint/nemo-extensions/archive/${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/nemo-extensions-${PV}/${PN}"
 
-LICENSE="GPL-3"
+LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 ~riscv x86"
+KEYWORDS="amd64 ~arm64 x86"
+# ~riscv lacks support for dev-python/pymediainfo
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 COMMON_DEPEND="

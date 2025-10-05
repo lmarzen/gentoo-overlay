@@ -7,7 +7,7 @@ HOMEPAGE="https://projects.linuxmint.com/cinnamon/ https://github.com/linuxmint/
 SRC_URI="https://github.com/linuxmint/nemo-extensions/archive/${PV}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/nemo-extensions-${PV}/${PN}"
 
-LICENSE="GPL-2+"
+LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 ~arm64 ~riscv x86"
 
