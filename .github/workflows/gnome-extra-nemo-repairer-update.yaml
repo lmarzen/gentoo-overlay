@@ -24,6 +24,9 @@ env:
 jobs:
   update:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ci-update-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: write
     outputs:
