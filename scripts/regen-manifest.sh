@@ -77,5 +77,3 @@ if [[ -n "$GITHUB_ENV" ]]; then
         echo "MANIFEST_UPDATED=$MAN_UPDATED" >> "$GITHUB_ENV"
     fi
 fi
-echo "MANIFEST_UPDATED=$MAN_UPDATED"
-echo "MANIFEST_UPDATED=$MAN_UPDATED" >> "$GITHUB_ENV"
