@@ -57,8 +57,11 @@ jobs:
 
       - name: Run pkgcheck
         uses: pkgcore/pkgcheck-action@v1
-        continue-on-error: true   # Temporarily prevent failure
 
-      - name: Fail if not canceled
-        if: ${{ failure() && !cancelled() }}
-        run: exit 1
+      - name: Handle cancellation
+        if: ${{ always() && cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "Job was cancelled - pkgcheck will be run by a newer job"
+          # Exit successfully when cancelled
+          exit 0
