@@ -58,9 +58,17 @@ jobs:
       - name: Run pkgcheck
         uses: pkgcore/pkgcheck-action@v1
 
-  finalize:
-    runs-on: ubuntu-latest
-    needs: pkgcheck
-    if: always()
-    steps:
-      - run: echo "Finalizing workflow as SUCCESS."
+      - name: Handle cancellation
+        if: ${{ cancelled() }}
+        continue-on-error: true
+        run: |
+          echo "Job was cancelled - pkgcheck will be run by a newer job"
+          # Exit successfully when cancelled
+          exit 0
+
+      - name: Handle always
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          echo "always was ran"
+          # Exit successfully when cancelled
