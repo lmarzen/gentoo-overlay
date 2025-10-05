@@ -71,9 +71,9 @@ if [[ $MAN_UPDATED == true ]]; then
     git commit -m "Updated manifest for $ECN/$EPN"
 fi
 
-echo "MANIFEST_UPDATED=$MAN_UPDATED"
 if [[ -n "$GITHUB_ENV" ]]; then
-    if [[ $MANIFEST_UPDATED == true ]]; then
+    if [[ $MANIFEST_UPDATED != true ]]; then
+        echo "MANIFEST_UPDATED=$MAN_UPDATED"
         echo "MANIFEST_UPDATED=$MAN_UPDATED" >> "$GITHUB_ENV"
     fi
 fi
