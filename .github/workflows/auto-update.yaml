@@ -34,12 +34,11 @@ jobs:
         run: scripts/sci-ml/ollama/update.sh
 
       - name: pkgcheck
-        id: pkgcheck
         if: env.MANIFEST_UPDATED == 'true'
         uses: pkgcore/pkgcheck-action@v1
 
       - name: Push changes
-        needs: pkgcheck
+        if: env.MANIFEST_UPDATED == 'true'
         run: |
           git pull --rebase origin main || true
           git push
