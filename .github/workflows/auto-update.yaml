@@ -33,12 +33,6 @@ jobs:
           EPN: ollama
         run: scripts/sci-ml/ollama/update.sh
 
-      - name: Update2 sci-ml/ollama
-        env:
-          ECN: sci-ml
-          EPN: ollama
-        run: scripts/sci-ml/ollama/update.sh
-
       - name: Push changes
         if: ${{ env.MANIFEST_UPDATED == 'true' }}
         run: |
