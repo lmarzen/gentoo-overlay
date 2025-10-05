@@ -17,10 +17,6 @@ on:
       - 'gnome-extra/nemo-image-converter/**'
       - 'scripts/gnome-extra/nemo-image-converter/**'
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: false
-
 env:
   ECN: gnome-extra
   EPN: nemo-image-converter
@@ -47,6 +43,9 @@ jobs:
 
   pkgcheck:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ci-pkgcheck-${{ github.ref }}
+      cancel-in-progress: true
     needs: update
     if: ${{ needs.update.outputs.changed == '1' }}
     steps:

@@ -17,10 +17,6 @@ on:
       - 'gnome-extra/nemo-emblems/**'
       - 'scripts/gnome-extra/nemo-emblems/**'
 
-# concurrency:
-#   group: ci-${{ github.ref }}
-#   cancel-in-progress: false
-
 env:
   ECN: gnome-extra
   EPN: nemo-emblems
