@@ -33,15 +33,17 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
         done
     fi
     if [[ $PV != 9999 ]]; then
-        # assumes single source
-        eval "SRC_URI=$(grep '^SRC_URI=' "$ebuild" | sed -E 's/^SRC_URI="([^" ]+).*/\1/')"
-        eval "DEST=$(grep '^SRC_URI=' "$ebuild" | sed -n 's/.*\-> \(.*\)"$/\1/p')"
-        if [[ -z "$DEST" ]]; then
-            scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}"
-        else
-            scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}" "${DEST}"
-        fi
-        # scripts/gen_manifest.sh "$MAN" DIST "https://github.com/lmarzen/gentoo-overlay/raw/refs/heads/distfiles/${CATEGORY}/${PN}/${P}-vendor.tar.xz"
+        while IFS="|" read -r SRCURI DEST; do
+            echo "SRC_URI='$SRC'"
+            echo "DEST='$DEST'"
+            eval "SRC_URI=$SRC_URI"
+            eval "DEST=$DEST"
+            if [[ -z "$DEST" ]]; then
+                scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}"
+            else
+                scripts/gen_manifest.sh "$MAN" DIST "${SRC_URI}" "${DEST}"
+            fi
+        done < <(python3 scripts/parse-src-uri.py "$ebuild")
     fi
     scripts/gen_manifest.sh "$MAN" EBUILD "$ebuild"
     scripts/gen_manifest.sh "$MAN" MISC "$CATEGORY/$PN/metadata.xml"
