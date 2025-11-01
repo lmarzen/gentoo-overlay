@@ -4,10 +4,10 @@
 EAPI=8
 
 # supports ROCM/HIP >=5.5, but we define 6.1 due to the eclass
-ROCM_VERSION=6.1
+ROCM_VERSION="6.1"
 inherit cuda rocm
 inherit cmake
-inherit go-module systemd toolchain-funcs
+inherit flag-o-matic go-module linux-info systemd toolchain-funcs
 
 DESCRIPTION="Get up and running with Llama 3, Mistral, Gemma, and other language models."
 HOMEPAGE="https://ollama.com"
@@ -39,15 +39,12 @@ X86_CPU_FLAGS=(
 	avx_vnni
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
-IUSE="${CPU_FLAGS[*]} cuda blas mkl rocm"
-# IUSE+=" opencl vulkan"
+IUSE="blas ${CPU_FLAGS[*]} cuda mkl rocm vulkan"
+# IUSE+=" opencl"
 
 RESTRICT="test"
 
 COMMON_DEPEND="
-	cuda? (
-		dev-util/nvidia-cuda-toolkit:=
-	)
 	blas? (
 		!mkl? (
 			virtual/blas
@@ -56,14 +53,25 @@ COMMON_DEPEND="
 			sci-libs/mkl
 		)
 	)
+	cuda? (
+		dev-util/nvidia-cuda-toolkit:=
+	)
 	rocm? (
-		>=sci-libs/hipBLAS-5.5:=[${ROCM_USEDEP}]
+		>=dev-util/hip-${ROCM_VERSION}:=
+		>=sci-libs/hipBLAS-${ROCM_VERSION}:=
+		>=sci-libs/rocBLAS-${ROCM_VERSION}:=
 	)
 "
 
 DEPEND="
 	${COMMON_DEPEND}
 	>=dev-lang/go-1.23.4
+"
+BDEPEND="
+	vulkan? (
+		dev-util/vulkan-headers
+		media-libs/shaderc
+	)
 "
 
 RDEPEND="
@@ -94,7 +102,26 @@ pkg_pretend() {
 	fi
 }
 
+pkg_setup() {
+	if use rocm; then
+		linux-info_pkg_setup
+		if linux-info_get_any_version && linux_config_exists; then
+			if ! linux_chkconfig_present HSA_AMD_SVM; then
+				ewarn "To use ROCm/HIP, you need to have HSA_AMD_SVM option enabled in your kernel."
+			fi
+		fi
+	fi
+}
+
 src_unpack() {
+	# Already filter lto flags for ROCM
+	# 963401
+	if use rocm; then
+		# copied from _rocm_strip_unsupported_flags
+		strip-unsupported-flags
+		export CXXFLAGS="$(test-flags-HIPCXX "${CXXFLAGS}")"
+	fi
+
 	if [[ "${PV}" == *9999* ]]; then
 		git-r3_src_unpack
 		go-module_live_vendor
@@ -112,14 +139,10 @@ src_prepare() {
 		-e "/PRE_INCLUDE_REGEXES.*hip/d" \
 		-i CMakeLists.txt || die sed
 
+	# TODO see src_unpack?
 	sed \
 		-e "s/ -O3//g" \
 		-i ml/backend/ggml/ggml/src/ggml-cpu/cpu.go || die sed
-
-	# fix library location
-	sed \
-		-e "s#lib/ollama#$(get_libdir)/ollama#g" \
-		-i CMakeLists.txt || die sed
 
 	sed \
 		-e "s/\"..\", \"lib\"/\"..\", \"$(get_libdir)\"/" \
@@ -190,8 +213,6 @@ src_prepare() {
 		# ml/backend/ggml/ggml/src/CMakeLists.txt
 	fi
 
-	# default
-	# return
 	if use cuda; then
 		cuda_src_prepare
 	fi
@@ -223,6 +244,7 @@ src_configure() {
 		# -DGGML_KOMPUTE="$(usex kompute)"
 		# -DGGML_OPENCL="$(usex opencl)"
 		# -DGGML_VULKAN="$(usex vulkan)"
+		"$(cmake_use_find_package vulkan Vulkan)"
 	)
 
 	if use blas; then
@@ -236,6 +258,7 @@ src_configure() {
 			)
 		fi
 	fi
+
 	if use cuda; then
 		local -x CUDAHOSTCXX CUDAHOSTLD
 		CUDAHOSTCXX="$(cuda_gccdir)"
@@ -259,13 +282,6 @@ src_configure() {
 		)
 
 		local -x HIP_PATH="${ESYSROOT}/usr"
-
-		# Without this, if any of the user's CXXFLAGS flags are not hipcc
-		# (clang++) supported an error will occur in CMakeTestHIPCompiler.cmake,
-		# causing rocm support not to be built.
-		CC=clang CXX=clang++ strip-unsupported-flags
-
-		check_amdgpu
 	else
 		mycmakeargs+=(
 			-DCMAKE_HIP_COMPILER="NOTFOUND"
@@ -281,14 +297,20 @@ src_compile() {
 	# https://forums.gentoo.org/viewtopic-p-8831646.html
 	local VERSION
 	if [[ "${PV}" == *9999* ]]; then
-		VERSION=$(
+		VERSION="$(
 			git describe --tags --first-parent --abbrev=7 --long --dirty --always \
 			| sed -e "s/^v//g"
-		)
+		)"
 	else
 		VERSION="${PVR}"
 	fi
-	GOFLAGS+=" '-ldflags=-w -s \"-X=github.com/ollama/ollama/version.Version=$VERSION\" \"-X=github.com/ollama/ollama/server.mode=release\"'"
+	local EXTRA_GOFLAGS_LD=(
+		# "-w" # disable DWARF generation
+		# "-s" # disable symbol table
+		"-X=github.com/ollama/ollama/version.Version=${VERSION}"
+		"-X=github.com/ollama/ollama/server.mode=release"
+	)
+	GOFLAGS+=" '-ldflags=${EXTRA_GOFLAGS_LD[*]}'"
 
 	ego build
 
