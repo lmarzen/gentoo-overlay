@@ -13,17 +13,17 @@ rm -f "$MAN"
 
 for ebuild in "$CATEGORY/$PN"/*.ebuild; do
     echo "Updating $MAN for $ebuild"
-    if [[ $ebuild == *9999* ]]; then
-        PV=9999
-        PVR=9999
-    else
-        PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
-        PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
-    fi
-    P=$PN-$PV
-    PF=$PN-$PVR
+    # if [[ $ebuild == *9999* ]]; then
+    #     PV=9999
+    #     PVR=9999
+    # else
+    #     PV=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+')
+    #     PVR=$(echo "$ebuild" | grep -oP '\d+\.\d+\.\d+(-[a-z0-9]+)?')
+    # fi
+    # P=$PN-$PV
+    # PF=$PN-$PVR
 
-    echo $CATEGORY $PN $PV $PVR $P $PF
+    # echo $CATEGORY $PN $PV $PVR $P $PF
     echo $ebuild
 
     if [ -d "$CATEGORY/$PN/files/" ]; then
@@ -32,7 +32,7 @@ for ebuild in "$CATEGORY/$PN"/*.ebuild; do
             scripts/gen_manifest.sh "$MAN" AUX "$file"
         done
     fi
-    if [[ $PV != 9999 ]]; then
+    if [[ $ebuild != *9999* ]]; then
         while IFS="|" read -r SRC_URI DEST; do
             echo "SRC_URI='$SRC_URI'"
             echo "DEST='$DEST'"
