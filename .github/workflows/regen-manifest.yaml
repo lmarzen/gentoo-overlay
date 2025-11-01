@@ -23,6 +23,10 @@ jobs:
         id: filter
         with:
           filters: |
+            acct-group-ollama:
+              - 'acct-group/ollama/**'
+            acct-user-ollama:
+              - 'acct-user/ollama/**'
             gnome-extra-nemo-audio-tab:
               - 'gnome-extra/nemo-audio-tab/**'
             gnome-extra-nemo-compare:
@@ -55,6 +59,20 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Regenerate manifest for acct-group/ollama
+        if: ${{ needs.changes.outputs.acct-group-ollama == 'true' }}
+        env:
+          ECN: acct-group
+          EPN: ollama
+        run: scripts/regen-manifest.sh
+
+      - name: Regenerate manifest for acct-user/ollama
+        if: ${{ needs.changes.outputs.acct-user-ollama == 'true' }}
+        env:
+          ECN: acct-user
+          EPN: ollama
+        run: scripts/regen-manifest.sh
 
       - name: Regenerate manifest for gnome-extra/nemo-audio-tab
         if: ${{ needs.changes.outputs.gnome-extra-nemo-audio-tab == 'true' }}
