@@ -9,6 +9,8 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
+      acct-group-ollama:                ${{ steps.filter.outputs.acct-group-ollama }}
+      acct-user-ollama:                 ${{ steps.filter.outputs.acct-user-ollama }}
       gnome-extra-nemo-audio-tab:       ${{ steps.filter.outputs.gnome-extra-nemo-audio-tab }}
       gnome-extra-nemo-compare:         ${{ steps.filter.outputs.gnome-extra-nemo-compare }}
       gnome-extra-nemo-emblems:         ${{ steps.filter.outputs.gnome-extra-nemo-emblems }}
