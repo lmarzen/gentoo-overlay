@@ -149,7 +149,7 @@ src_prepare() {
 		-e "s#\"lib/ollama\"#\"$(get_libdir)/ollama\"#" \
 		-i \
 			ml/backend/ggml/ggml/src/ggml.go \
-			discover/path.go \
+			ml/path.go \
 		|| die
 
 	if use amd64; then
