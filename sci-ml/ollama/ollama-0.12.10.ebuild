@@ -41,7 +41,9 @@ X86_CPU_FLAGS=(
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 IUSE="blas ${CPU_FLAGS[*]} cuda mkl openblas rocm vulkan"
 # IUSE+=" opencl"
-REQUIRED_USE="! ( blas mkl openblas )"
+REQUIRED_USE="
+	?? ( blas mkl openblas )
+"
 
 RESTRICT="test"
 
