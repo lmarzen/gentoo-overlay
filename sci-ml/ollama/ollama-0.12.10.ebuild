@@ -232,8 +232,8 @@ src_configure() {
 
 		# -DGGML_CPU="yes"
 		-DGGML_BLAS="$(usex blas)"
-		-DGGML_CUDA="$(usex cuda)"
-		-DGGML_HIP="$(usex rocm)"
+		# -DGGML_CUDA="$(usex cuda)"
+		# -DGGML_HIP="$(usex rocm)"
 
 		# -DGGML_METAL="yes" # apple
 		# missing from ml/backend/ggml/ggml/src/
