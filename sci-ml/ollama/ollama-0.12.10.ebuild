@@ -39,20 +39,16 @@ X86_CPU_FLAGS=(
 	avx_vnni
 )
 CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
-IUSE="blas ${CPU_FLAGS[*]} cuda mkl rocm vulkan"
+IUSE="blas ${CPU_FLAGS[*]} cuda mkl openblas rocm vulkan"
 # IUSE+=" opencl"
+REQUIRED_USE="! ( blas mkl openblas )"
 
 RESTRICT="test"
 
 COMMON_DEPEND="
-	blas? (
-		!mkl? (
-			virtual/blas
-		)
-		mkl? (
-			sci-libs/mkl
-		)
-	)
+	blas? ( virtual/blas )
+	mkl? ( sci-libs/mkl )
+	openblas? ( sci-libs/openblas )
 	cuda? (
 		dev-util/nvidia-cuda-toolkit:=
 	)
@@ -248,15 +244,19 @@ src_configure() {
 	)
 
 	if use blas; then
-		if use mkl; then
-			mycmakeargs+=(
-				-DGGML_BLAS_VENDOR="Intel"
-			)
-		else
-			mycmakeargs+=(
-				-DGGML_BLAS_VENDOR="Generic"
-			)
-		fi
+		mycmakeargs+=(
+			-DGGML_BLAS_VENDOR="Generic"
+		)
+	fi
+	if use mkl; then
+		mycmakeargs+=(
+			-DGGML_BLAS_VENDOR="Intel"
+		)
+	fi
+	if use openblas; then
+		mycmakeargs+=(
+			-DGGML_BLAS_VENDOR="OpenBLAS"
+		)
 	fi
 
 	if use cuda; then
