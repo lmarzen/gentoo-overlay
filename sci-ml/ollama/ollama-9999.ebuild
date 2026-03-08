@@ -1,4 +1,4 @@
-# Copyright 2024-2025 Gentoo Authors
+# Copyright 2024-2026 Gentoo Authors and Luke Marzen
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -42,7 +42,7 @@ CPU_FLAGS=( "${X86_CPU_FLAGS[@]/#/cpu_flags_x86_}" )
 IUSE="blas ${CPU_FLAGS[*]} cuda mkl rocm vulkan"
 # IUSE+=" opencl"
 
-RESTRICT="test"
+RESTRICT="mirror test"
 
 COMMON_DEPEND="
 	blas? (
@@ -50,7 +50,7 @@ COMMON_DEPEND="
 			virtual/blas
 		)
 		mkl? (
-			sci-libs/mkl
+			sci-libs/mkl[llvm-openmp]
 		)
 	)
 	cuda? (
@@ -233,8 +233,14 @@ src_configure() {
 	local mycmakeargs=(
 		-DGGML_CCACHE="no"
 
+		# backends end up in /usr/bin otherwise
+		-DGGML_BACKEND_DL="yes"
+		# TODO causes duplicate install warning but breaks detection otherwise ollama/issues/13614
+		-DGGML_BACKEND_DIR="${EPREFIX}/usr/$(get_libdir)/${PN}"
+
 		# -DGGML_CPU="yes"
 		-DGGML_BLAS="$(usex blas)"
+
 		# -DGGML_CUDA="$(usex cuda)"
 		# -DGGML_HIP="$(usex rocm)"
 
@@ -253,7 +259,7 @@ src_configure() {
 	if use blas; then
 		if use mkl; then
 			mycmakeargs+=(
-				-DGGML_BLAS_VENDOR="Intel"
+				-DGGML_BLAS_VENDOR="Intel10_64lp"
 			)
 		else
 			mycmakeargs+=(
@@ -266,6 +272,15 @@ src_configure() {
 		local -x CUDAHOSTCXX CUDAHOSTLD
 		CUDAHOSTCXX="$(cuda_gccdir)"
 		CUDAHOSTLD="$(tc-getCXX)"
+
+		# default to all for now until cuda.eclass is updated
+		if [[ ! -v CUDAARCHS ]]; then
+			local CUDAARCHS="all"
+		fi
+
+		mycmakeargs+=(
+			-DCMAKE_CUDA_ARCHITECTURES="${CUDAARCHS}"
+		)
 
 		cuda_add_sandbox -w
 		addpredict "/dev/char/"
