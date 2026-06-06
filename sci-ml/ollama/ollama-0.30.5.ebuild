@@ -162,11 +162,11 @@ src_prepare() {
 		-i CMakeLists.txt || die "Disable CCACHE sed failed"
 
 	# TODO see src_unpack?
-	sed \
-		-e "s/ -O3//g" \
-		-i \
-			ml/backend/ggml/ggml/src/ggml-cpu/cpu.go \
-		|| die "-O3 sed failed"
+	# sed \
+	# 	-e "s/ -O3//g" \
+	# 	-i \
+	# 		ml/backend/ggml/ggml/src/ggml-cpu/cpu.go \
+	# 	|| die "-O3 sed failed"
 
 	# grep -Rl -e 'lib/ollama' -e '"..", "lib"'  --include '*.go'
 	sed \
