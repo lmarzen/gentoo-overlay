@@ -177,66 +177,66 @@ src_prepare() {
 	# 		ml/path.go \
 	# 	|| die "libdir sed failed"
 
-	if use amd64; then
-		if
-			! use cpu_flags_x86_sse4_2; then
-			sed -e "/ggml_add_cpu_backend_variant(sse42/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
-			# SSE42)
-		fi
-		if
-			! use cpu_flags_x86_sse4_2 ||
-			! use cpu_flags_x86_avx; then
-			sed -e "/ggml_add_cpu_backend_variant(sandybridge/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
-			# SSE42 AVX)
-		fi
-		if
-			! use cpu_flags_x86_sse4_2 ||
-			! use cpu_flags_x86_avx ||
-			! use cpu_flags_x86_f16c ||
-			! use cpu_flags_x86_avx2 ||
-			! use cpu_flags_x86_bmi2 ||
-			! use cpu_flags_x86_fma3; then
-			sed -e "/ggml_add_cpu_backend_variant(haswell/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
-			# SSE42 AVX F16C AVX2 BMI2 FMA)
-		fi
-		if
-			! use cpu_flags_x86_sse4_2 ||
-			! use cpu_flags_x86_avx ||
-			! use cpu_flags_x86_f16c ||
-			! use cpu_flags_x86_avx2 ||
-			! use cpu_flags_x86_bmi2 ||
-			! use cpu_flags_x86_fma3 ||
-			! use cpu_flags_x86_avx512f; then
-			sed -e "/ggml_add_cpu_backend_variant(skylakex/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt ||  die
-			# SSE42 AVX F16C AVX2 BMI2 FMA AVX512)
-		fi
-		if
-			! use cpu_flags_x86_sse4_2 ||
-			! use cpu_flags_x86_avx ||
-			! use cpu_flags_x86_f16c ||
-			! use cpu_flags_x86_avx2 ||
-			! use cpu_flags_x86_bmi2 ||
-			! use cpu_flags_x86_fma3 ||
-			! use cpu_flags_x86_avx512f ||
-			! use cpu_flags_x86_avx512vbmi ||
-			! use cpu_flags_x86_avx512_vnni; then
-			sed -e "/ggml_add_cpu_backend_variant(icelake/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
-			# SSE42 AVX F16C AVX2 BMI2 FMA AVX512 AVX512_VBMI AVX512_VNNI)
-		fi
-		if
-			! use cpu_flags_x86_sse4_2 ||
-			! use cpu_flags_x86_avx ||
-			! use cpu_flags_x86_f16c ||
-			! use cpu_flags_x86_avx2 ||
-			! use cpu_flags_x86_bmi2 ||
-			! use cpu_flags_x86_fma3 ||
-			! use cpu_flags_x86_avx_vnni; then
-			sed -e "/ggml_add_cpu_backend_variant(alderlake/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
-			# SSE42 AVX F16C AVX2 BMI2 FMA AVX_VNNI)
-		fi
-
-		# ml/backend/ggml/ggml/src/CMakeLists.txt
-	fi
+	# if use amd64; then
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(sse42/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
+	# 		# SSE42)
+	# 	fi
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2 ||
+	# 		! use cpu_flags_x86_avx; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(sandybridge/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
+	# 		# SSE42 AVX)
+	# 	fi
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2 ||
+	# 		! use cpu_flags_x86_avx ||
+	# 		! use cpu_flags_x86_f16c ||
+	# 		! use cpu_flags_x86_avx2 ||
+	# 		! use cpu_flags_x86_bmi2 ||
+	# 		! use cpu_flags_x86_fma3; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(haswell/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
+	# 		# SSE42 AVX F16C AVX2 BMI2 FMA)
+	# 	fi
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2 ||
+	# 		! use cpu_flags_x86_avx ||
+	# 		! use cpu_flags_x86_f16c ||
+	# 		! use cpu_flags_x86_avx2 ||
+	# 		! use cpu_flags_x86_bmi2 ||
+	# 		! use cpu_flags_x86_fma3 ||
+	# 		! use cpu_flags_x86_avx512f; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(skylakex/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt ||  die
+	# 		# SSE42 AVX F16C AVX2 BMI2 FMA AVX512)
+	# 	fi
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2 ||
+	# 		! use cpu_flags_x86_avx ||
+	# 		! use cpu_flags_x86_f16c ||
+	# 		! use cpu_flags_x86_avx2 ||
+	# 		! use cpu_flags_x86_bmi2 ||
+	# 		! use cpu_flags_x86_fma3 ||
+	# 		! use cpu_flags_x86_avx512f ||
+	# 		! use cpu_flags_x86_avx512vbmi ||
+	# 		! use cpu_flags_x86_avx512_vnni; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(icelake/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
+	# 		# SSE42 AVX F16C AVX2 BMI2 FMA AVX512 AVX512_VBMI AVX512_VNNI)
+	# 	fi
+	# 	if
+	# 		! use cpu_flags_x86_sse4_2 ||
+	# 		! use cpu_flags_x86_avx ||
+	# 		! use cpu_flags_x86_f16c ||
+	# 		! use cpu_flags_x86_avx2 ||
+	# 		! use cpu_flags_x86_bmi2 ||
+	# 		! use cpu_flags_x86_fma3 ||
+	# 		! use cpu_flags_x86_avx_vnni; then
+	# 		sed -e "/ggml_add_cpu_backend_variant(alderlake/s/^/# /g" -i ml/backend/ggml/ggml/src/CMakeLists.txt || die
+	# 		# SSE42 AVX F16C AVX2 BMI2 FMA AVX_VNNI)
+	# 	fi
+	#
+	# 	# ml/backend/ggml/ggml/src/CMakeLists.txt
+	# fi
 
 	if use cuda; then
 		cuda_src_prepare
