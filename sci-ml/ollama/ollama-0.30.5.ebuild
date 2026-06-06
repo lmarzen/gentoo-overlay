@@ -169,13 +169,13 @@ src_prepare() {
 	# 	|| die "-O3 sed failed"
 
 	# grep -Rl -e 'lib/ollama' -e '"..", "lib"'  --include '*.go'
-	sed \
-		-e "s/\"..\", \"lib\"/\"..\", \"$(get_libdir)\"/" \
-		-e "s#\"lib/ollama\"#\"$(get_libdir)/ollama\"#" \
-		-i \
-			ml/backend/ggml/ggml/src/ggml.go \
-			ml/path.go \
-		|| die "libdir sed failed"
+	# sed \
+	# 	-e "s/\"..\", \"lib\"/\"..\", \"$(get_libdir)\"/" \
+	# 	-e "s#\"lib/ollama\"#\"$(get_libdir)/ollama\"#" \
+	# 	-i \
+	# 		ml/backend/ggml/ggml/src/ggml.go \
+	# 		ml/path.go \
+	# 	|| die "libdir sed failed"
 
 	if use amd64; then
 		if
