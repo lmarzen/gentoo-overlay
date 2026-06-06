@@ -105,7 +105,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}/${PN}-9999-use-GNUInstallDirs.patch"
-	"${FILESDIR}/${PN}-9999-make-installing-runtime-deps-optional.patch"
+	# "${FILESDIR}/${PN}-9999-make-installing-runtime-deps-optional.patch"
 )
 
 pkg_pretend() {
