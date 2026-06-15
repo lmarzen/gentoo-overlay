@@ -117,6 +117,7 @@ src_unpack() {
 		strip-unsupported-flags
 		export CXXFLAGS="$(test-flags-HIPCXX "${CXXFLAGS}")"
 	fi
+}
 
 src_prepare() {
 	cmake_src_prepare
