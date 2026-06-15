@@ -39,7 +39,7 @@ RESTRICT="network-sandbox mirror test"
 
 COMMON_DEPEND="
 	cuda? (
-		>=dev-util/nvidia-cuda-toolkit-13:=
+		dev-util/nvidia-cuda-toolkit
 		x11-drivers/nvidia-drivers
 	)
 	rocm? (
@@ -97,6 +97,26 @@ src_unpack() {
 	cd "${S}" || die
 	ego mod download
 }
+
+pkg_setup() {
+	if use rocm; then
+		linux-info_pkg_setup
+		if linux-info_get_any_version && linux_config_exists; then
+			if ! linux_chkconfig_present HSA_AMD_SVM; then
+				ewarn "To use ROCm/HIP, you need to have HSA_AMD_SVM option enabled in your kernel."
+			fi
+		fi
+	fi
+}
+
+src_unpack() {
+	# Already filter lto flags for ROCM
+	# 963401
+	if use rocm; then
+		# copied from _rocm_strip_unsupported_flags
+		strip-unsupported-flags
+		export CXXFLAGS="$(test-flags-HIPCXX "${CXXFLAGS}")"
+	fi
 
 src_prepare() {
 	cmake_src_prepare
