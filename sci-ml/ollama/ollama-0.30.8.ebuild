@@ -20,10 +20,12 @@ if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/ollama/ollama.git"
 else
+	MY_PV="${PV/_rc/-rc}"
+	MY_P="${PN}-${MY_PV}"
 	SRC_URI="
 		https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz
 	"
-	S="${WORKDIR}/${P}"
+	S="${WORKDIR}/${MY_P}"
 	KEYWORDS="~amd64"
 fi
 
