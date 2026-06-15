@@ -20,12 +20,10 @@ if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/ollama/ollama.git"
 else
-	MY_PV="${PV/_rc/-rc}"
-	MY_P="${PN}-${MY_PV}"
 	SRC_URI="
 		https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz
 	"
-	S="${WORKDIR}/${MY_P}"
+	S="${WORKDIR}/${P}"
 	KEYWORDS="~amd64"
 fi
 
@@ -98,27 +96,6 @@ src_unpack() {
 	# Populate GOMODCACHE (no vendor/ dir upstream; network-sandbox is disabled)
 	cd "${S}" || die
 	ego mod download
-}
-
-pkg_setup() {
-	if use rocm; then
-		linux-info_pkg_setup
-		if linux-info_get_any_version && linux_config_exists; then
-			if ! linux_chkconfig_present HSA_AMD_SVM; then
-				ewarn "To use ROCm/HIP, you need to have HSA_AMD_SVM option enabled in your kernel."
-			fi
-		fi
-	fi
-}
-
-src_unpack() {
-	# Already filter lto flags for ROCM
-	# 963401
-	if use rocm; then
-		# copied from _rocm_strip_unsupported_flags
-		strip-unsupported-flags
-		export CXXFLAGS="$(test-flags-HIPCXX "${CXXFLAGS}")"
-	fi
 }
 
 src_prepare() {
