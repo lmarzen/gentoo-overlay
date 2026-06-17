@@ -106,6 +106,7 @@ src_prepare() {
 		# --hip-version gets appended to compile flags which isn't a known flag.
 		# Disable -Werror's from go modules to fix rocm builds.
 		find "${S}" -name "*.go" -exec sed -i "s/ -Werror / /g" {} + || die
+		sed -i 's/-parallel-jobs=4//g' llama/server/CMakeLists.txt || die
 	fi
 }
 
