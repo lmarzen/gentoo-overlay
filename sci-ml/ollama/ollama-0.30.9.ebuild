@@ -3,11 +3,6 @@
 
 EAPI=8
 
-# ollama 0.30 builds llama-server from upstream llama.cpp (pinned in the source
-# tree's LLAMA_CPP_VERSION) via CMake FetchContent, and the Go binary downloads
-# its modules at build time. Both need network access, so the build runs with
-# the network sandbox disabled (RESTRICT="network-sandbox"), mirroring the
-# app-portage/bentoolkit approach. ROCM_VERSION is set for the rocm eclass.
 ROCM_VERSION="7.2"
 inherit cuda rocm
 inherit cmake
@@ -23,12 +18,9 @@ else
 	SRC_URI="
 		https://github.com/ollama/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.gh.tar.gz
 	"
-	S="${WORKDIR}/${P}"
 	KEYWORDS="~amd64"
 fi
 
-# ollama and llama.cpp are MIT; the rest covers the statically linked Go modules
-# bundled into the ollama binary.
 LICENSE="Apache-2.0 BSD BSD-2 ISC MIT MPL-2.0"
 SLOT="0"
 
@@ -39,7 +31,7 @@ RESTRICT="network-sandbox mirror test"
 
 COMMON_DEPEND="
 	cuda? (
-		dev-util/nvidia-cuda-toolkit
+		dev-util/nvidia-cuda-toolkit:=
 		x11-drivers/nvidia-drivers
 	)
 	rocm? (
@@ -65,6 +57,7 @@ BDEPEND="
 "
 RDEPEND="
 	${COMMON_DEPEND}
+	!sci-ml/ollama-bin
 	acct-group/${PN}
 	>=acct-user/${PN}-3[cuda?]
 "
@@ -81,7 +74,6 @@ pkg_setup() {
 }
 
 src_unpack() {
-	# Filter LTO flags for ROCm (bug 963401)
 	if use rocm; then
 		strip-unsupported-flags
 		export CXXFLAGS="$(test-flags-HIPCXX "${CXXFLAGS}")"
@@ -93,7 +85,6 @@ src_unpack() {
 		default
 	fi
 
-	# Populate GOMODCACHE (no vendor/ dir upstream; network-sandbox is disabled)
 	cd "${S}" || die
 	ego mod download
 }
@@ -103,7 +94,7 @@ src_prepare() {
 
 	use cuda && cuda_src_prepare
 
-	# Fix runtime library lookup for multilib. Upstream hardcodes "lib"/"ollama"
+	# Fix runtime library lookup for multilib.  Upstream hardcodes "lib"/"ollama"
 	# in ml/path.go; rewrite to $(get_libdir) when it differs.
 	if [[ "$(get_libdir)" != "lib" ]]; then
 		sed -i \
@@ -121,7 +112,7 @@ src_prepare() {
 src_configure() {
 	# Map USE flags to llama-server GPU runner backends. CPU is always built
 	# (GGML_CPU_ALL_VARIANTS, runtime-dispatched). cuda_v13 matches CUDA 13.x
-	# (dev-util/nvidia-cuda-toolkit-13 in the overlay); rocm_v7_2 is the only
+	# (ollama's internal llama.cpp backend name); rocm_v7_2 is the only
 	# ROCm backend valid on Linux (rocm_v7_1 is Windows-only).
 	local backends=()
 	use cuda && backends+=( cuda_v13 )
@@ -169,8 +160,6 @@ src_configure() {
 }
 
 src_install() {
-	# Installs usr/bin/ollama (Go binary) and usr/$(get_libdir)/ollama/* (the
-	# llama-server payload), per OLLAMA_LIB_DIR set in src_configure.
 	cmake_src_install
 
 	newinitd "${FILESDIR}/ollama.init" "${PN}"
